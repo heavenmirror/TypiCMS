@@ -1,6 +1,10 @@
 @section('js')
-    {{ HTML::script(asset('//tinymce.cachefly.net/4.0/tinymce.min.js')) }}
+    {{ HTML::script(asset('//tinymce.cachefly.net/4.1/tinymce.min.js')) }}
     {{ HTML::script(asset('js/admin/form.js')) }}
+@stop
+
+@section('titleLeftButton')
+    @include('admin._button-back', ['table' => $model->route])
 @stop
 
 @include('admin._buttons-form')
@@ -10,9 +14,7 @@
 <div class="form-group @if($errors->has('name'))has-error @endif">
     {{ Form::label('name', trans('validation.attributes.name'), array('class' => 'control-label')) }}
     {{ Form::text('name', null, array('class' => 'form-control', 'autofocus')) }}
-    @if($errors->has('name'))
-    <span class="help-block">{{ $errors->first('name') }}</span>
-    @endif
+    {{ $errors->first('name', '<p class="help-block">:message</p>') }}
 </div>
 
 @include('admin._tabs-lang-form', ['target' => 'content'])
@@ -22,8 +24,8 @@
 @foreach ($locales as $lang)
 
     <div class="tab-pane fade @if($locale == $lang)in active @endif" id="content-{{ $lang }}">
-        <div class="form-group">
-            <label class="checkbox">
+        <div class="checkbox">
+            <label>
                 {{ Form::checkbox($lang.'[status]', 1, $model->translate($lang)->status) }} @lang('validation.attributes.online')
             </label>
         </div>

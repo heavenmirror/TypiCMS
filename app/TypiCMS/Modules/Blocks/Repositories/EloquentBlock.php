@@ -1,24 +1,15 @@
 <?php
 namespace TypiCMS\Modules\Blocks\Repositories;
 
-use StdClass;
-
 use App;
-use Input;
-use Config;
-use Croppa;
-use Request;
-
-use FileUpload;
-
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-
+use StdClass;
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentBlock extends RepositoriesAbstract implements BlockInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -39,7 +30,7 @@ class EloquentBlock extends RepositoriesAbstract implements BlockInterface
             // take only translated items that are online
             $query->whereHas(
                 'translations',
-                function ($query) {
+                function (Builder $query) {
                     $query->where('status', 1);
                     $query->where('locale', App::getLocale());
                 }
@@ -52,17 +43,12 @@ class EloquentBlock extends RepositoriesAbstract implements BlockInterface
         // Get
         $models = $query->get();
 
-        // Nesting
-        if (property_exists($this->model, 'children')) {
-            $models->nest();
-        }
-
         return $models;
     }
 
     /**
      * Get the content of a block
-     * 
+     *
      * @param  string $name unique name of the block
      * @param  array  $with linked
      * @return string       html
@@ -73,7 +59,7 @@ class EloquentBlock extends RepositoriesAbstract implements BlockInterface
             ->where('name', $name)
             ->whereHas(
                 'translations',
-                function ($query) {
+                function (Builder $query) {
                     $query->where('status', 1);
                     $query->where('locale', App::getLocale());
                 }

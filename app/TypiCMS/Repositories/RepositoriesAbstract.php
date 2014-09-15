@@ -1,20 +1,18 @@
 <?php
 namespace TypiCMS\Repositories;
 
-use StdClass;
-
 use DB;
 use Str;
 use App;
 use Input;
 use Config;
-
-use TypiCMS\Services\Helpers;
+use StdClass;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use TypiCMS\Modules\Pages\Models\Page;
+use TypiCMS;
 
-use TypiCMS\Modules\Galleries\Repositories\GalleryInterface;
-
-abstract class RepositoriesAbstract
+abstract class RepositoriesAbstract implements RepositoryInterface
 {
     protected $model;
     protected $gallery;
@@ -26,7 +24,7 @@ abstract class RepositoriesAbstract
 
     /**
      * get empty model
-     * @return model
+     * @return Model
      */
     public function getModel()
     {
@@ -65,7 +63,7 @@ abstract class RepositoriesAbstract
      * regardless of status
      *
      * @param  int       $id model ID
-     * @return stdObject object of model information
+     * @return Model
      */
     public function byId($id, array $with = array('translations'))
     {
@@ -83,7 +81,7 @@ abstract class RepositoriesAbstract
      * @param  int      $limit Results per page
      * @param  boolean  $all   get published models or all
      * @param  array    $with  Eager load related models
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPage($page = 1, $limit = 10, array $with = array('translations'), $all = false)
     {
@@ -118,9 +116,9 @@ abstract class RepositoriesAbstract
     /**
      * Get all models
      *
-     * @param  boolean  $all  Show published or all
-     * @param  array    $with Eager load related models
-     * @return StdClass Object with $items
+     * @param  array       $with Eager load related models
+     * @param  boolean     $all  Show published or all
+     * @return \Illuminate\Database\Eloquent\Collection|\TypiCMS\NestedCollection
      */
     public function getAll(array $with = array('translations'), $all = false)
     {
@@ -135,21 +133,27 @@ abstract class RepositoriesAbstract
         $query = $query->order();
 
         // Get
-        $models = $query->get();
+        return $query->get();
+    }
 
-        // Nesting
-        if (property_exists($this->model, 'children')) {
-            $models->nest();
-        }
-
-        return $models;
+    /**
+     * Get all models and nest
+     *
+     * @param  boolean                    $all  Show published or all
+     * @param  array                      $with Eager load related models
+     * @return \TypiCMS\NestedCollection  with $items
+     */
+    public function getAllNested(array $with = array('translations'), $all = false)
+    {
+        // Get
+        return $this->getAll($with, $all)->nest();
     }
 
     /**
      * Get all models with categories
      *
-     * @param  boolean  $all Show published or all
-     * @return StdClass Object with $items
+     * @param  boolean                                  $all Show published or all
+     * @return \Illuminate\Database\Eloquent\Collection Object with $items
      */
     public function getAllBy($key, $value, array $with = array('translations'), $all = false)
     {
@@ -173,10 +177,10 @@ abstract class RepositoriesAbstract
 
     /**
      * Get latest models
-     * 
+     *
      * @param  integer      $number number of items to take
      * @param  array        $with array of related items
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function latest($number = 10, array $with = array('translations'))
     {
@@ -186,20 +190,26 @@ abstract class RepositoriesAbstract
 
     /**
      * Get single model by Slug
-     * 
+     *
      * @param  string $slug slug
      * @param  array  $with related tables
      * @return mixed
      */
     public function bySlug($slug, array $with = array('translations'))
     {
-        // Find id
-        $id = Helpers::getIdFromSlug($this->model->getTable(), $slug);
-
         $model = $this->make($with)
-            ->whereHasOnlineTranslation()
+            ->whereHas(
+                'translations',
+                function (Builder $query) use ($slug) {
+                    if (! Input::get('preview')) {
+                        $query->where('status', 1);
+                    }
+                    $query->where('locale', App::getLocale());
+                    $query->where('slug', '=', $slug);
+                }
+            )
             ->withOnlineGalleries()
-            ->findOrFail($id);
+            ->firstOrFail();
 
         if (! count($model->translations)) {
             App::abort(404);
@@ -213,6 +223,8 @@ abstract class RepositoriesAbstract
      * Return all results that have a required relationship
      *
      * @param string $relation
+     * @param array  $with
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function has($relation, array $with = array())
     {
@@ -233,7 +245,7 @@ abstract class RepositoriesAbstract
         $model = $this->model->fill($data);
 
         if ($model->save()) {
-            $this->syncGalleries($model, $data);
+            $this->syncRelation($model, $data, 'galleries');
             return $model;
         }
 
@@ -252,7 +264,7 @@ abstract class RepositoriesAbstract
 
         $model->fill($data);
 
-        $this->syncGalleries($model, $data);
+        $this->syncRelation($model, $data, 'galleries');
 
         if ($model->save()) {
             return true;
@@ -271,7 +283,7 @@ abstract class RepositoriesAbstract
     public function sort(array $data)
     {
 
-        if (isset($data['nested']) and $data['nested']) {
+        if (isset($data['nested']) && $data['nested']) {
 
             $position = 0;
 
@@ -306,7 +318,7 @@ abstract class RepositoriesAbstract
 
     /**
      * Build a select menu for a module
-     * 
+     *
      * @param  string  $method     with method to call from the repository ?
      * @param  boolean $firstEmpty generate an empty item
      * @param  string  $value      witch field as value ?
@@ -324,16 +336,20 @@ abstract class RepositoriesAbstract
 
     /**
      * Get all translated pages for a select/options
-     * 
+     *
      * @return array
      */
     public function getPagesForSelect()
     {
-        $pagesArray = Page::select('pages.id', 'title', 'locale')
+        $pages = Page::select('pages.id', 'title', 'locale', 'parent')
             ->join('page_translations', 'pages.id', '=', 'page_translations.page_id')
             ->where('locale', Config::get('typicms.adminLocale'))
-            ->lists('id', 'title');
-        $pagesArray = array_merge(array('' => '0'), $pagesArray);
+            ->order()
+            ->get();
+
+        $pagesArray = TypiCMS::arrayIndent($pages);
+
+        $pagesArray = array_merge(['' => '0'], $pagesArray);
         $pagesArray = array_flip($pagesArray);
 
         return $pagesArray;
@@ -341,7 +357,7 @@ abstract class RepositoriesAbstract
 
     /**
      * Get all modules for a select/options
-     * 
+     *
      * @return array
      */
     public function getModulesForSelect()
@@ -372,9 +388,9 @@ abstract class RepositoriesAbstract
     /**
      * Sync tags for model
      *
-     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param  Model $model
      * @param  array                               $tags
-     * @return mixed false or void
+     * @return false|null false or void
      */
     protected function syncTags($model, array $tags)
     {
@@ -397,28 +413,31 @@ abstract class RepositoriesAbstract
     }
 
     /**
-     * Sync galleries for model
+     * Sync related items for model
      *
-     * @param  \Illuminate\Database\Eloquent\Model $model
-     * @param  array                               $galleries
-     * @return mixed false or void
+     * @param  Model $model
+     * @param  array                               $data
+     * @param  string                              $table
+     * @return false|null
      */
-    protected function syncGalleries($model, array $data)
+    protected function syncRelation($model, array $data, $table = null)
     {
-        if (! method_exists($model, 'galleries')) {
+        if (! method_exists($model, $table)) {
             return false;
         }
 
-        ! isset($data['galleries']) and $data['galleries'] = array();
+        if (! isset($data[$table])) {
+            return false;
+        }
 
-        // add galleries
+        // add related items
         $pivotData = array();
         $position = 0;
-        foreach ($data['galleries'] as $id) {
+        foreach ($data[$table] as $id) {
             $pivotData[$id] = ['position' => $position++];
         }
 
-        // Sync galleries
-        $model->galleries()->sync($pivotData);
+        // Sync related items
+        $model->$table()->sync($pivotData);
     }
 }

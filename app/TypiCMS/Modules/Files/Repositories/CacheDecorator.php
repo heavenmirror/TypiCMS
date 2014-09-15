@@ -3,15 +3,12 @@ namespace TypiCMS\Modules\Files\Repositories;
 
 use App;
 use Input;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
-use Illuminate\Database\Eloquent\Model;
 
 class CacheDecorator extends CacheAbstractDecorator implements FileInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(FileInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -27,7 +24,7 @@ class CacheDecorator extends CacheAbstractDecorator implements FileInterface
      * @param  boolean  $all   get published models or all
      * @param  array    $with  Eager load related models
      * @param  string   $type  file type : a,v,d,i,o
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPageFrom(
         $page = 1,
@@ -44,7 +41,7 @@ class CacheDecorator extends CacheAbstractDecorator implements FileInterface
             $limit .
             $gallery_id .
             $all .
-            implode(Input::except('page')) .
+            implode('.', Input::except('page')) .
             $type
         );
 

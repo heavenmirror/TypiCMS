@@ -4,8 +4,8 @@ namespace TypiCMS\Modules\Contacts\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application;
 
 // Model
 use TypiCMS\Modules\Contacts\Models\Contact;
@@ -46,7 +46,7 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Contacts\Repositories\ContactInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Contacts\Repositories\ContactInterface', function (Application $app) {
             $repository = new EloquentContact(new Contact);
             if (! Config::get('app.cache')) {
                 return $repository;
@@ -56,7 +56,7 @@ class ModuleProvider extends ServiceProvider
             return new CacheDecorator($repository, $laravelCache);
         });
 
-        $app->bind('TypiCMS\Modules\Contacts\Services\Form\ContactForm', function ($app) {
+        $app->bind('TypiCMS\Modules\Contacts\Services\Form\ContactForm', function (Application $app) {
             return new ContactForm(
                 new ContactFormLaravelValidator($app['validator']),
                 $app->make('TypiCMS\Modules\Contacts\Repositories\ContactInterface')

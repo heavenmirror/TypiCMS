@@ -1,11 +1,14 @@
 <?php
 namespace TypiCMS\Modules\Galleries\Repositories;
 
-interface GalleryInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface GalleryInterface extends RepositoryInterface
 {
+
     /**
      * Get all items name
-     * 
+     *
      * @return array with names
      */
     public function getNames();

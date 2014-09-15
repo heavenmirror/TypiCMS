@@ -7,7 +7,6 @@ Route::bind('pages', function ($value, $route) {
 
 Route::group(
     array(
-        'before'    => 'auth.admin',
         'namespace' => 'TypiCMS\Modules\Pages\Controllers',
         'prefix'    => 'admin',
     ),
@@ -19,8 +18,7 @@ Route::group(
 
 Route::group(
     array(
-        'before'    => 'auth.public|cache',
-        'after'     => 'cache',
+        'before'    => 'visitor.publicAccess',
         'namespace' => 'TypiCMS\Modules\Pages\Controllers',
     ),
     function () {

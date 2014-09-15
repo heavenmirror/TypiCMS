@@ -5,11 +5,9 @@ use View;
 use Input;
 use Request;
 use Redirect;
-
+use Response;
 use TypiCMS\Modules\Categories\Repositories\CategoryInterface;
 use TypiCMS\Modules\Categories\Services\Form\CategoryForm;
-
-// Base controller
 use TypiCMS\Controllers\BaseAdminController;
 
 class AdminController extends BaseAdminController
@@ -48,7 +46,6 @@ class AdminController extends BaseAdminController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function edit($model)
@@ -61,7 +58,6 @@ class AdminController extends BaseAdminController
     /**
      * Show resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($model)
@@ -92,13 +88,14 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function update($model)
     {
 
-        Request::ajax() and exit($this->repository->update(Input::all()));
+        if (Request::ajax()) {
+            return Response::json($this->repository->update(Input::all()));
+        }
 
         if ($this->form->update(Input::all())) {
             return Input::get('exit') ?
@@ -114,7 +111,6 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function sort()
@@ -125,7 +121,6 @@ class AdminController extends BaseAdminController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function destroy($model)

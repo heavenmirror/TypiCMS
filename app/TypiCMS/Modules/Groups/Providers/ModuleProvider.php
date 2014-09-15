@@ -4,9 +4,8 @@ namespace TypiCMS\Modules\Groups\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Foundation\Application;
 use TypiCMS\Modules\Groups\Repositories\SentryGroup;
 
 // Form
@@ -32,13 +31,13 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Groups\Repositories\GroupInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Groups\Repositories\GroupInterface', function (Application $app) {
             return new SentryGroup(
                 $app['sentry']
             );
         });
 
-        $app->bind('TypiCMS\Modules\Groups\Services\Form\GroupForm', function ($app) {
+        $app->bind('TypiCMS\Modules\Groups\Services\Form\GroupForm', function (Application $app) {
             return new GroupForm(
                 new GroupFormLaravelValidator($app['validator']),
                 $app->make('TypiCMS\Modules\Groups\Repositories\GroupInterface')

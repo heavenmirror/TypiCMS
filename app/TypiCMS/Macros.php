@@ -1,24 +1,24 @@
 <?php
 /**
- * Back end table headers 
+ * Back end table headers
  */
 HTML::macro('th', function ($field = '', $defaultOrder = null, $sortable = true, $label = true) {
     $inputs = Input::all();
-
     $order = Input::get('order');
-    if ($defaultOrder and ! $order) { // set default column active
+    if ($defaultOrder && ! $order) { // set default column active
         $order = $field;
     }
     $direction = Input::get('direction', $defaultOrder);
+    $th = array();
     $th[] = '<th class="' . $field . '">';
     if ($sortable) {
         $inputs['direction'] = 'asc';
         $iconDir = ' text-muted'; // column not active, gray icons
         if ($order == $field) { // if this column is active
+            $iconDir = '-' . $direction;
             if ($direction == 'asc') { // reverse direction
                 $inputs['direction'] = 'desc';
             }
-            $iconDir = '-' . $inputs['direction'];
         }
         $inputs['order'] = $field;
         $th[] = '<a href="?' . http_build_query($inputs) . '">';
@@ -33,11 +33,11 @@ HTML::macro('th', function ($field = '', $defaultOrder = null, $sortable = true,
     $th[] = '</th>';
     $th[] = "\r\n";
 
-    return implode($th);
+    return implode('', $th);
 });
 
 /**
- * Back end buttons in view list 
+ * Back end buttons in view list
  */
 HTML::macro('langButton', function ($locale = null, $attributes = []) {
 
@@ -56,7 +56,7 @@ HTML::macro('langButton', function ($locale = null, $attributes = []) {
 });
 
 /**
- * Front end lang switcher 
+ * Front end lang switcher
  */
 HTML::macro('languagesMenu', function (array $langsArray = array(), array $attributes = array()) {
 
@@ -80,13 +80,13 @@ HTML::macro('languagesMenu', function (array $langsArray = array(), array $attri
  * Front end menu
  */
 HTML::macro('menu', $builtMenu = function ($items = array(), $ulAttr = array()) use (&$builtMenu) {
-    // dd($items);
+
     $menuList = array('<ul ' . HTML::attributes($ulAttr) . '>');
 
     foreach ($items as $item) {
 
         $liAttr = array();
-        $item->class and $liAttr['class'] = $item->class;
+        $item->class && $liAttr['class'] = $item->class;
         $liAttr['role'] = 'menuitem';
 
         // item
@@ -97,7 +97,7 @@ HTML::macro('menu', $builtMenu = function ($items = array(), $ulAttr = array()) 
             $aAttr['class'] = 'dropdown-toggle';
             $aAttr['data-toggle'] = 'dropdown';
         }
-        $item->target and $aAttr['target'] = $item->target;
+        $item->target && $aAttr['target'] = $item->target;
         $aAttr['href'] = $item->uri;
 
         $menuList[] = '<a ' . HTML::attributes($aAttr) . '>';
@@ -105,7 +105,7 @@ HTML::macro('menu', $builtMenu = function ($items = array(), $ulAttr = array()) 
             $menuList[] = '<span class="'.$item->icon_class.'"></span>';
         }
         $menuList[] = $item->title;
-        $item->children and $menuList[] = '<span class="caret"></span>';
+        $item->children && $menuList[] = '<span class="caret"></span>';
         $menuList[] = '</a>';
 
         // nested list

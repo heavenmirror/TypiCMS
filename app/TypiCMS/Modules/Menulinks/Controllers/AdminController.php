@@ -6,11 +6,9 @@ use View;
 use Input;
 use Request;
 use Redirect;
-
+use Response;
 use TypiCMS\Modules\Menulinks\Repositories\MenulinkInterface;
 use TypiCMS\Modules\Menulinks\Services\Form\MenulinkForm;
-
-// Base controller
 use TypiCMS\Controllers\BaseAdminController;
 
 class AdminController extends BaseAdminController
@@ -20,7 +18,6 @@ class AdminController extends BaseAdminController
     {
         parent::__construct($menulink, $menulinkform);
         $this->title['parent'] = Lang::choice('menulinks::global.menulinks', 2);
-        // $this->model = $menulink;
     }
 
     /**
@@ -59,7 +56,6 @@ class AdminController extends BaseAdminController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function edit($menu, $model)
@@ -76,7 +72,6 @@ class AdminController extends BaseAdminController
     /**
      * Show resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($menu, $model)
@@ -107,13 +102,14 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function update($menu, $model)
     {
 
-        Request::ajax() and exit($this->repository->update(Input::all()));
+        if (Request::ajax()) {
+            return Response::json($this->repository->update(Input::all()));
+        }
 
         if ($this->form->update(Input::all())) {
             return (Input::get('exit')) ?
@@ -130,7 +126,6 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function sort()
@@ -141,7 +136,6 @@ class AdminController extends BaseAdminController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function destroy($menu, $model)

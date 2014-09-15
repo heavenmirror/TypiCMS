@@ -1,15 +1,11 @@
 <?php
 namespace TypiCMS\Modules\Settings\Repositories;
 
-use stdClass;
-
-use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
-class CacheDecorator extends CacheAbstractDecorator implements SettingInterface
+class CacheDecorator implements SettingInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(SettingInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -25,7 +21,7 @@ class CacheDecorator extends CacheAbstractDecorator implements SettingInterface
      */
     public function getAll(array $with = array(), $all = false)
     {
-        $cacheKey = md5('Settings' . implode($with));
+        $cacheKey = md5('Settings' . implode('.', $with));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);

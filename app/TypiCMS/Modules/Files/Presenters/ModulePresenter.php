@@ -2,7 +2,6 @@
 namespace TypiCMS\Modules\Files\Presenters;
 
 use Croppa;
-
 use TypiCMS\Presenters\Presenter;
 
 class ModulePresenter extends Presenter
@@ -10,13 +9,12 @@ class ModulePresenter extends Presenter
 
     /**
      * Create thumb
-     * @param  string $size    xs, sm, md, lg
      * @param  array  $options PHPThumb style option
      * @return string          html img tag or div with doc icon
      */
     public function thumb($width = 130, $height = 130, array $options = array(), $field = 'filename')
     {
-        if ($this->isImage($this->entity)) {
+        if ($this->entity->type == 'i') {
             $src = Croppa::url(
                 '/'.$this->entity->path.'/'.$this->entity->filename,
                 $width,
@@ -30,12 +28,24 @@ class ModulePresenter extends Presenter
     }
 
     /**
-     * Check if file is an image
-     * @param  Object  $object file object
-     * @return boolean
+     * Return an icon and file name
+     *
+     * @param  int $size       size of the icon
+     * @param  string $field   field name
+     * @return string          HTML markup of an image
      */
-    private function isImage($object)
+    public function icon($size = 1, $field = 'document')
     {
-        return in_array(strtolower($object->extension), array('.jpg', '.jpeg', '.gif', '.png'));
+        $file = '/' . $this->entity->path . $this->entity->$field;
+        $html = '<div class="doc">';
+        $html .= '<span class="text-center fa fa-file-o fa-' . $size . 'x"></span>';
+        $html .= ' <a href="' . $file . '">';
+        $html .= $this->entity->$field;
+        $html .= '</a>';
+        if (! is_file(public_path() . $file)) {
+            $html .= ' <span class="text-danger">(' . trans('global.Not found') . ')</span>';
+        }
+        $html .= '</div>';
+        return $html;
     }
 }

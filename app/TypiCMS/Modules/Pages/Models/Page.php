@@ -1,10 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Pages\Models;
 
-use Request;
-
+use App;
+use Config;
 use Dimsav\Translatable\Translatable;
-
 use TypiCMS\Models\Base;
 use TypiCMS\NestedCollection;
 use TypiCMS\Presenters\PresentableTrait;
@@ -76,13 +75,27 @@ class Page extends Base
     public $children = array();
 
     /**
-     * return 'active' if this is the current page
-     * 
-     * @return string 'active' or ''
+     * Get public uri
+     *
+     * @return string
      */
-    public function activeClass()
+    public function getPublicUri($preview = false, $index = false, $lang = null)
     {
-        return Request::is($this->uri) ? 'active' : '';
+        $lang = $lang ? : App::getlocale() ;
+        $indexUri = Config::get('app.locale_in_url') ? '/'.$lang : '/' ;
+
+        if ($index || $this->is_home) {
+            return $indexUri;
+        }
+
+        // If model is offline and we are not in preview mode
+        if (! $preview && ! $this->translate($lang)->status) {
+            return $indexUri;
+        }
+
+        if ($this->translate($lang)->uri) {
+            return '/' . $this->translate($lang)->uri;
+        }
     }
 
     /**
@@ -104,7 +117,7 @@ class Page extends Base
     /**
      * Custom collection
      *
-     * @return InvoiceCollection object
+     * @return NestedCollection object
      */
     public function newCollection(array $models = array())
     {
@@ -131,7 +144,7 @@ class Page extends Base
     {
         parent::boot();
 
-        static::creating(function ($model) {
+        static::creating(function (Page $model) {
             // set is_home = 0 on previous homepage
             if ($model->is_home) {
                 static::where('is_home', 1)
@@ -139,7 +152,7 @@ class Page extends Base
             }
         });
 
-        static::updating(function ($model) {
+        static::updating(function (Page $model) {
             // set is_home = 0 on previous homepage
             if ($model->is_home) {
                 static::where('is_home', 1)

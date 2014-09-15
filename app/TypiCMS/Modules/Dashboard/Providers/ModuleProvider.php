@@ -4,8 +4,8 @@ namespace TypiCMS\Modules\Dashboard\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application;
 
 // Repo
 use TypiCMS\Modules\Dashboard\Repositories\EloquentDashboard;
@@ -33,7 +33,7 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Dashboard\Repositories\DashboardInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Dashboard\Repositories\DashboardInterface', function (Application $app) {
             $repository = new EloquentDashboard();
             if (! Config::get('app.cache')) {
                 return $repository;

@@ -1,7 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Files\Repositories;
 
-interface FileInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface FileInterface extends RepositoryInterface
 {
 
     /**
@@ -13,7 +15,7 @@ interface FileInterface
      * @param  array    $with  Eager load related models
      * @param  boolean  $all   get published models or all
      * @param  string   $type  file type : a,v,d,i,o
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPageFrom(
         $page = 1,

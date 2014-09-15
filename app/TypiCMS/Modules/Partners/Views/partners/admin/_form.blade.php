@@ -1,6 +1,14 @@
 @section('js')
-    {{ HTML::script(asset('//tinymce.cachefly.net/4.0/tinymce.min.js')) }}
+    {{ HTML::script(asset('//tinymce.cachefly.net/4.1/tinymce.min.js')) }}
     {{ HTML::script(asset('js/admin/form.js')) }}
+@stop
+
+@section('otherSideLink')
+    @include('admin._navbar-public-link')
+@stop
+
+@section('titleLeftButton')
+    @include('admin._button-back', ['table' => $model->route])
 @stop
 
 @include('admin._buttons-form')
@@ -29,22 +37,18 @@
                         <button class="btn btn-default btn-slug @if($errors->has($lang.'.slug'))btn-danger @endif" type="button">@lang('validation.attributes.generate')</button>
                     </span>
                 </div>
-                @if($errors->has($lang.'.slug'))
-                <span class="help-block">{{ $errors->first($lang.'.slug') }}</span>
-                @endif
+                {{ $errors->first($lang.'.slug', '<p class="help-block">:message</p>') }}
             </div>
         </div>
-        <div class="form-group">
-            <label class="checkbox">
+        <div class="checkbox">
+            <label>
                 {{ Form::checkbox($lang.'[status]', 1, $model->translate($lang)->status) }} @lang('validation.attributes.online')
             </label>
         </div>
         <div class="form-group @if($errors->has($lang.'.website'))has-error @endif">
             {{ Form::label($lang.'[website]', trans('validation.attributes.website'), array('class' => 'control-label')) }}
             {{ Form::text($lang.'[website]', $model->translate($lang)->website, array('class' => 'form-control', 'placeholder' => 'http://')) }}
-            @if($errors->has($lang.'.website'))
-            <span class="help-block">{{ $errors->first($lang.'.website') }}</span>
-            @endif
+            {{ $errors->first($lang.'.website', '<p class="help-block">:message</p>') }}
         </div>
         <div class="form-group">
             {{ Form::label($lang.'[body]', trans('validation.attributes.body')) }}

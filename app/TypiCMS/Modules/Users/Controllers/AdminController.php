@@ -2,20 +2,18 @@
 namespace TypiCMS\Modules\Users\Controllers;
 
 use App;
-use Mail;
-use View;
-use Input;
 use Config;
-use Request;
-use Redirect;
 use Exception;
+use Illuminate\Mail\Message;
+use Input;
+use Mail;
 use Notification;
-
+use Redirect;
+use Request;
+use TypiCMS\Controllers\BaseAdminController;
 use TypiCMS\Modules\Users\Repositories\UserInterface;
 use TypiCMS\Modules\Users\Services\Form\UserForm;
-
-// Base controller
-use TypiCMS\Controllers\BaseAdminController;
+use View;
 
 class AdminController extends BaseAdminController
 {
@@ -197,7 +195,7 @@ class AdminController extends BaseAdminController
         try {
 
             $input = Input::except('password_confirmation');
-            $user = $this->repository->register($input, $noConfirmation);
+            $this->repository->register($input, $noConfirmation);
             $message = 'Your account has been created, ';
             $message .= $noConfirmation ? 'you can now log in' : 'check your email for the confirmation link' ;
             Notification::success(trans('users::global.'.$message));
@@ -250,15 +248,16 @@ class AdminController extends BaseAdminController
         try {
             $email = Input::get('email');
             $user = $this->repository->findUserByLogin($email);
+            $data = array();
             $data['resetCode'] = $this->repository->getResetPasswordCode($user);
             $data['userId'] = $this->repository->getId($user);
             $data['email'] = $email;
 
             // Email the reset code to the user
-            Mail::send('emails.auth.reset', $data, function ($m) use ($data) {
+            Mail::send('emails.auth.reset', $data, function (Message $message) use ($data) {
                 $subject  = '[' . Config::get('typicms.' . App::getLocale() . '.websiteTitle') . '] ';
                 $subject .= trans('users::global.Password Reset Confirmation');
-                $m->to($data['email'])->subject($subject);
+                $message->to($data['email'])->subject($subject);
             });
 
             Notification::success(trans('users::global.An email was sent with password reset information'));
@@ -283,9 +282,9 @@ class AdminController extends BaseAdminController
             $user = $this->repository->byId($userId);
             if (! $this->repository->checkResetPasswordCode($user, $resetCode)) {
                 Notification::error(trans('users::global.This password reset token is invalid'));
-
                 return Redirect::route('login');
             }
+            $data = array();
             $data['id'] = $userId;
             $data['resetCode'] = $resetCode;
 
@@ -293,7 +292,8 @@ class AdminController extends BaseAdminController
                 ->with($data);
 
         } catch (Exception $e) {
-            exit('users::global.User does not exist');
+            Notification::error(trans('users::global.User does not exist'));
+            return Redirect::route('login');
         }
 
     }
@@ -359,6 +359,6 @@ class AdminController extends BaseAdminController
     public function postUpdatePreferences()
     {
         $input = Input::all();
-        $user = $this->repository->updatePreferences($input);
+        $this->repository->updatePreferences($input);
     }
 }

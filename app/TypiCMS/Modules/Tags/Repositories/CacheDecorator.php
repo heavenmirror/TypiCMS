@@ -3,14 +3,12 @@ namespace TypiCMS\Modules\Tags\Repositories;
 
 use App;
 use Input;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements TagInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(TagInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -23,11 +21,11 @@ class CacheDecorator extends CacheAbstractDecorator implements TagInterface
      * @param  int      $page  Number of pages per page
      * @param  int      $limit Results per page
      * @param  boolean  $all   Show published or all
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPage($page = 1, $limit = 10, array $with = array(), $all = false)
     {
-        $cacheKey = md5(App::getLocale().'byPage.'.$page.$limit.$all.implode(Input::except('page')));
+        $cacheKey = md5(App::getLocale().'byPage.'.$page.$limit.$all.implode('.', Input::except('page')));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
@@ -49,7 +47,7 @@ class CacheDecorator extends CacheAbstractDecorator implements TagInterface
      */
     public function getAll(array $with = array(), $all = false)
     {
-        $cacheKey = md5(App::getLocale() . 'all' . implode($with) . $all);
+        $cacheKey = md5(App::getLocale() . 'all' . implode('.', $with) . $all);
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);

@@ -1,10 +1,7 @@
 <?php
 namespace TypiCMS\Modules\Galleries\Models;
 
-use Input;
-
 use Dimsav\Translatable\Translatable;
-
 use TypiCMS\Models\Base;
 use TypiCMS\Presenters\PresentableTrait;
 
@@ -57,12 +54,12 @@ class Gallery extends Base
      */
     public function files()
     {
-        return $this->hasMany('TypiCMS\Modules\Files\Models\File');
+        return $this->hasMany('TypiCMS\Modules\Files\Models\File')->order();
     }
 
     /**
      * One gallery has many news.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
      */
     public function news()
@@ -72,7 +69,7 @@ class Gallery extends Base
 
     /**
      * One gallery has many pages.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
      */
     public function pages()

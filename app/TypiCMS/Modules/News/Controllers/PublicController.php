@@ -6,12 +6,8 @@ use View;
 use Input;
 use Config;
 use Paginator;
-
 use TypiCMS;
-
 use TypiCMS\Modules\News\Repositories\NewsInterface;
-
-// Base controller
 use TypiCMS\Controllers\BasePublicController;
 
 class PublicController extends BasePublicController
@@ -45,7 +41,6 @@ class PublicController extends BasePublicController
     /**
      * Show news.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($slug)

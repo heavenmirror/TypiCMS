@@ -7,140 +7,181 @@ var gulp       = require('gulp'),
     minifyCSS  = require('gulp-minify-css'),
     uglify     = require('gulp-uglify'),
     watch      = require('gulp-watch'),
-    bowerFiles = require('gulp-bower-files'),
+    bowerFiles = require('main-bower-files'),
     livereload = require('gulp-livereload'),
-    browserify = require('gulp-browserify'),
     rename     = require('gulp-rename'),
-    plumber    = require('gulp-plumber'),
-    filter     = require('gulp-filter');
+    filter     = require('gulp-filter'),
+    imagemin   = require('gulp-imagemin'),
+    newer      = require('gulp-newer'),
+    prefix     = require('gulp-autoprefixer');
+
+function swallowError (error) {
+    console.log(error.toString());
+    this.emit('end');
+}
 
 // Compile Less and save to css directory
-gulp.task('public-less', function () {
+gulp.task('less-public', function () {
 
-    return gulp.src([
-            'app/assets/less/public/master.less'
-        ])
-        .pipe(plumber())
+    var destDir = 'public/css/',
+        destFile = 'public.css';
+
+    return gulp.src('app/assets/less/public/master.less')
         .pipe(less())
+        .on('error', swallowError)
+        .pipe(prefix('last 2 versions', '> 1%', 'Explorer 7', 'Android 2'))
         .pipe(minifyCSS())
-        .pipe(rename('public.css'))
-        .pipe(gulp.dest('public/css'))
+        .pipe(rename(destFile))
+        .pipe(gulp.dest(destDir))
         .pipe(livereload())
         .pipe(notify('Public CSS minified'));
 
 });
 
-gulp.task('admin-less', function () {
+gulp.task('less-admin', function () {
 
-    return gulp.src([
-            'app/assets/less/admin/master.less'
-        ])
-        .pipe(plumber())
+    var destDir = 'public/css/',
+        destFile = 'admin.css';
+
+    return gulp.src('app/assets/less/admin/master.less')
         .pipe(less())
+        .on('error', swallowError)
+        .pipe(prefix('last 2 versions', '> 1%', 'Explorer 7', 'Android 2'))
         .pipe(minifyCSS())
-        .pipe(rename('admin.css'))
-        .pipe(gulp.dest('public/css'))
+        .pipe(rename(destFile))
+        .pipe(gulp.dest(destDir))
         .pipe(livereload())
         .pipe(notify('Admin CSS minified'));
+
+});
+
+gulp.task('img', function () {
+
+    var destDir = 'public/img';
+
+    return gulp.src('app/assets/img/*')
+        .pipe(newer(destDir))
+        .pipe(imagemin({
+            progressive: true,
+            svgoPlugins: [{removeViewBox: false}]
+        }))
+        .pipe(gulp.dest(destDir));
 
 });
 
 // Publish fonts
 gulp.task('fonts', function () {
 
+    var destDir = 'public/fonts';
+
     return gulp.src([
             'app/assets/components/font-awesome/fonts/*',
             'app/assets/components/flexslider/fonts/*'
         ])
-        .pipe(gulp.dest('public/fonts'));
+        .pipe(newer(destDir))
+        .pipe(gulp.dest(destDir));
 
 });
 
-// Publish datepicker locales
-gulp.task('datepicker-locales', function () {
+// Publish pickadate locales
+gulp.task('pickadate-locales', function () {
+
+    var destDir = 'public/js/pickadate-locales';
 
     return gulp.src([
-            'app/assets/components/eonasdan-bootstrap-datetimepicker/src/js/locales/bootstrap-datetimepicker.fr.js',
-            'app/assets/components/eonasdan-bootstrap-datetimepicker/src/js/locales/bootstrap-datetimepicker.nl.js',
-            'app/assets/components/eonasdan-bootstrap-datetimepicker/src/js/locales/bootstrap-datetimepicker.de.js',
+            'app/assets/components/pickadate/lib/translations/fr_FR.js',
+            'app/assets/components/pickadate/lib/translations/nl_NL.js',
         ])
-        .pipe(gulp.dest('public/js/datepicker-locales'));
+        .pipe(newer(destDir))
+        .pipe(gulp.dest(destDir));
 
 });
 
 // Publish Fancybox images
 gulp.task('fancybox-img', function () {
 
+    var destDir = 'public/components/fancybox/source';
+
     return gulp.src([
             'app/assets/components/fancybox/source/*.gif',
             'app/assets/components/fancybox/source/*.png'
         ])
-        .pipe(gulp.dest('public/components/fancybox/source'));
+        .pipe(newer(destDir))
+        .pipe(gulp.dest(destDir));
 
 });
 
-// Minify and save to target JS directory
-gulp.task('public-js', function () {
+gulp.task('js-admin', function () {
 
-    return gulp.src('app/assets/js/public/main.js')
-        .pipe(browserify({
-            debug: true
-        }))
+    var destDir = 'public/js/admin/',
+        destFile = 'components.min.js',
+        files = bowerFiles({checkExistence: true});
+    
+    files.push(path.resolve() + '/app/assets/js/admin/*');
+
+    return gulp.src(files)
+        .pipe(filter([
+            '**/*.js',
+            '!tinymce*'
+        ]))
+        .pipe(newer(destDir + destFile))
+        .pipe(concat('components.js'))
         .pipe(uglify())
-        .pipe(rename('public/js/public/components.min.js'))
-        .pipe(gulp.dest('./'))
-        .pipe(notify('Public JS minified'));
+        .pipe(rename(destFile))
+        .pipe(gulp.dest(destDir))
+        .pipe(notify('js-admin done'));
 
 });
 
-gulp.task('components-js', function () {
+gulp.task('js-public', function () {
 
-    var jsFilter = filter('**/*.js');
+    var destDir = 'public/js/public/',
+        destFile = 'components.min.js',
+        files = bowerFiles({checkExistence: true});
 
-    return bowerFiles({checkExistence: true})
-        .pipe(jsFilter)
-        .pipe(concat('bundle.js'))
+    files.push(path.resolve() + '/app/assets/js/public/*');
+
+    return gulp.src(files)
+        .pipe(filter([
+            '**/*.js',
+            '!tinymce*',
+            '!jquery-ui*',
+            '!jquery.ui*',
+            '!picker*',
+            '!sifter*',
+            '!microplugin*',
+            '!selectize*',
+            '!alertify*',
+            '!fastclick*',
+            '!dropzone*'
+        ]))
+        .pipe(newer(destDir + destFile))
+        .pipe(concat('components.js'))
         .pipe(uglify())
-        .pipe(rename('components.min.js'))
-        .pipe(gulp.dest('public/js/admin/'))
-        .pipe(notify('Bower js files minified'));
-
-});
-
-gulp.task('components-custom-js', function () {
-
-    return gulp.src([
-            'app/assets/js/admin/jquery.mjs.nestedSortable.js',
-            'app/assets/js/admin/jquery.nestedCookie.js',
-            'app/assets/js/admin/jquery.slug.js',
-            'app/assets/js/admin/jquery.listenhancer.js'
-        ])
-        .pipe(concat('components-custom.js'))
-        .pipe(uglify())
-        .pipe(rename('components-custom.min.js'))
-        .pipe(gulp.dest('public/js/admin/'))
-        .pipe(notify('Custom js plugins minified'));
+        .pipe(rename(destFile))
+        .pipe(gulp.dest(destDir))
+        .pipe(notify('js-public done'));
 
 });
 
 // Keep an eye on Less and JS files for changes…
 gulp.task('watch', function () {
-    gulp.watch('app/assets/less/public/**/*.less', ['public-less']);
-    gulp.watch('app/assets/less/admin/**/*.less', ['admin-less']);
-    gulp.watch('app/assets/less/*.less', ['public-less', 'admin-less']);
-    gulp.watch('app/assets/js/public/**/*.js', ['public-js']);
-    gulp.watch('app/assets/js/admin/**/*.js', ['components-js', 'components-custom-js']);
+    gulp.watch('app/assets/less/public/**/*.less', ['less-public']);
+    gulp.watch('app/assets/less/admin/**/*.less', ['less-admin']);
+    gulp.watch('app/assets/less/*.less', ['less-public', 'less-admin']);
+    gulp.watch('app/assets/js/public/**/*.js', ['js-public']);
+    gulp.watch('app/assets/js/admin/**/*.js', ['js-admin']);
 });
 
 // What tasks does running gulp trigger?
 gulp.task('default', [
-    'public-less',
-    'admin-less',
-    'public-js',
-    'components-js',
-    'components-custom-js',
+    'less-public',
+    'less-admin',
+    'js-public',
+    'js-admin',
+    'img',
     'fonts',
-    'datepicker-locales',
+    'pickadate-locales',
     'fancybox-img',
     'watch'
 ]);

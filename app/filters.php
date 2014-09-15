@@ -22,7 +22,6 @@ App::after(function($request, $response)
 	//
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Authentication Filters
@@ -36,97 +35,24 @@ App::after(function($request, $response)
 
 Route::filter('auth', function()
 {
-	if (Auth::guest()){
-		if (Request::ajax()){
+	if (Auth::guest())
+	{
+		if (Request::ajax())
+		{
 			return Response::make('Unauthorized', 401);
 		}
-		return Redirect::guest('login');
+		else
+		{
+			return Redirect::guest('login');
+		}
 	}
 });
+
 
 Route::filter('auth.basic', function()
 {
 	return Auth::basic();
 });
-
-Route::filter('auth.public', function()
-{
-	if ( ! Config::get('typicms.authPublic')) return;
-
-	if ( ! Sentry::check()) {
-		if (Request::ajax()){
-			return Response::make('Unauthorized', 401);
-		}
-		return Redirect::guest(route('login'));
-	}
-});
-
-Route::filter('auth.admin', function()
-{
-	if ( ! Sentry::check())
-	{
-		if (Request::ajax()){
-			return Response::make('Unauthorized', 401);
-		}
-		return Redirect::guest(route('login'));
-	}
-	$route = Route::getCurrentRoute()->getName();
-	$user = Sentry::getUser();
-	// Debugbar::addMessage($user->getPermissions(), 'users permissions');
-	// Debugbar::addMessage($user->getMergedPermissions(), 'users merged permissions');
-	// Debugbar::addMessage($route, 'route');
-	if ( ! $user->hasAccess($route)) {
-		App::abort(403);
-	}
-});
-
-Route::filter('users.register', function()
-{
-	if ( ! Config::get('typicms.register')) {
-		App::abort(404);
-	}
-});
-
-Route::filter('isPublicLocaleOnline', function()
-{
-	$locale = Config::get('app.locale');
-	if ( ! Config::get('typicms.' . $locale . '.status')) {
-		App::abort(404);
-	}
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Cache Filter
-|--------------------------------------------------------------------------
-*/
-
-Route::filter('cache', function($route, $request, $response = null)
-{
-	// Barbarian cache disabled for the moment.
-	// if ( ! Sentry::check() and Config::get('app.cache') ) { // no cache if connected
-	// 	$key = 'route-'.Str::slug(Request::fullUrl());
-	// 	if (is_null($response) && Cache::section('public')->has($key)) {
-	// 		return Cache::section('public')->get($key);
-	// 	} else if ( ! is_null($response) && ! Cache::section('public')->has($key)) {
-	// 		Cache::section('public')->put($key, $response->getContent(), 30);
-	// 	}
-	// }
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Cache Clear Filter
-|--------------------------------------------------------------------------
-*/
-
-Route::filter('cache.clear', function()
-{
-	Cache::flush();
-});
-
 
 /*
 |--------------------------------------------------------------------------

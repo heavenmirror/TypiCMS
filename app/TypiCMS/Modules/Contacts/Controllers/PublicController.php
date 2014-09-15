@@ -5,16 +5,11 @@ use App;
 use Str;
 use View;
 use Input;
-use Config;
 use Session;
 use Redirect;
-
 use TypiCMS;
-
 use TypiCMS\Modules\Contacts\Repositories\ContactInterface;
 use TypiCMS\Modules\Contacts\Services\Form\ContactForm;
-
-// Base controller
 use TypiCMS\Controllers\BasePublicController;
 
 class PublicController extends BasePublicController
@@ -50,7 +45,7 @@ class PublicController extends BasePublicController
     {
         App::setLocale(Input::get('locale'));
 
-        if ($model = $this->form->save(Input::all())) {
+        if ($this->form->save(Input::all())) {
             Session::flash('formIsSent', true);
             return Redirect::back();
         }

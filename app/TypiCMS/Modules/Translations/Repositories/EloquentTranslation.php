@@ -1,17 +1,13 @@
 <?php
 namespace TypiCMS\Modules\Translations\Repositories;
 
-use App;
 use Config;
-
 use Illuminate\Database\Eloquent\Model;
-
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentTranslation extends RepositoriesAbstract implements TranslationInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -81,7 +77,7 @@ class EloquentTranslation extends RepositoriesAbstract implements TranslationInt
      */
     public function update(array $data)
     {
-        isset($data['key']) and $data['key'] = htmlspecialchars($data['key']);
+        isset($data['key']) && $data['key'] = htmlspecialchars($data['key']);
         foreach (Config::get('app.locales') as $locale) {
             if (isset($data[$locale]['translation'])) {
                 $data[$locale]['translation'] = htmlspecialchars($data[$locale]['translation']);
@@ -92,19 +88,5 @@ class EloquentTranslation extends RepositoriesAbstract implements TranslationInt
         $model->save();
 
         return true;
-    }
-
-    /**
-     * Delete model
-     *
-     * @return boolean
-     */
-    public function delete($model)
-    {
-        if ($model->delete()) {
-            return true;
-        }
-
-        return false;
     }
 }

@@ -3,14 +3,10 @@ namespace TypiCMS\Controllers;
 
 use App;
 use View;
-use Event;
+use Input;
 use Sentry;
 use Config;
-use Request;
 use Controller;
-
-use TypiCMS;
-
 use Patchwork\Utf8;
 
 abstract class BasePublicController extends Controller
@@ -39,12 +35,12 @@ abstract class BasePublicController extends Controller
         $this->applicationName = Config::get('typicms.' . App::getLocale() . '.websiteTitle');
 
         $instance = $this;
-        View::composer($this->layout, function ($view) use ($instance) {
+        View::composer($this->layout, function (\Illuminate\View\View $view) use ($instance) {
             $view->withTitle(Utf8::ucfirst(implode(' ', $instance->title)) . ' – ' . $instance->applicationName);
         });
 
         $bodyClass = ['lang-' . App::getLocale(), $repository->getModel()->getTable()];
-        if (Sentry::getUser()) {
+        if (Sentry::getUser() && ! Input::get('preview')) {
             $bodyClass[] = 'has-navbar';
         }
         View::share('lang', App::getLocale());

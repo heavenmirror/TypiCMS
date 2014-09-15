@@ -143,6 +143,7 @@ return array(
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 
+		'Barryvdh\Debugbar\ServiceProvider',
 		'Cartalyst\Sentry\SentryServiceProvider',
 		'Krucas\Notification\NotificationServiceProvider',
 		'Bkwld\Croppa\ServiceProvider',
@@ -152,6 +153,8 @@ return array(
 		'McCool\DatabaseBackup\ServiceProviders\LaravelServiceProvider',
 		'Cviebrock\ImageValidator\ImageValidatorServiceProvider',
 		'Jenssegers\Rollbar\RollbarServiceProvider',
+		'Roumen\Sitemap\SitemapServiceProvider',
+		'Laracasts\Utilities\UtilitiesServiceProvider',
 
 		'TypiCMS\Providers\StartProvider',
 		'TypiCMS\Providers\UploadServiceProvider',

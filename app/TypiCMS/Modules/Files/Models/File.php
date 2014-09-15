@@ -2,9 +2,7 @@
 namespace TypiCMS\Modules\Files\Models;
 
 use Dimsav\Translatable\Translatable;
-
 use Croppa;
-
 use TypiCMS\Models\Base;
 use TypiCMS\Presenters\PresentableTrait;
 
@@ -78,7 +76,7 @@ class File extends Base
     {
         parent::boot();
 
-        static::deleted(function ($model) {
+        static::deleted(function (File $model) {
             Croppa::delete($model->path . '/' . $model->filename);
         });
 

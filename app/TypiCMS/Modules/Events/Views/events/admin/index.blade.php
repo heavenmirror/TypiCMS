@@ -6,8 +6,8 @@
     <span id="nb_elements">{{ $models->getTotal() }}</span> @choice('events::global.events', $models->getTotal())
 @stop
 
-@section('addButton')
-    <a href="{{ route('admin.events.create') }}" class=""><i class="fa fa-plus-circle"></i><span class="sr-only">{{ ucfirst(trans('events::global.New')) }}</span></a>
+@section('titleLeftButton')
+    <a href="{{ route('admin.events.create') }}" class=""><span class="fa fa-plus-circle"></span><span class="sr-only">{{ ucfirst(trans('events::global.New')) }}</span></a>
 @stop
 
 @section('main')
@@ -26,8 +26,8 @@
                         {{ Html::th('checkboxes', null, false, false) }}
                         {{ Html::th('edit', null, false, false) }}
                         {{ Html::th('status', null, false) }}
-                        {{ Html::th('start_date', 'asc') }}
-                        {{ Html::th('end_date') }}
+                        {{ Html::th('start_date') }}
+                        {{ Html::th('end_date', 'desc') }}
                         {{ Html::th('title', null, false) }}
                     </tr>
 

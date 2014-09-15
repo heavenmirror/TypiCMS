@@ -1,7 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Places\Repositories;
 
-interface PlaceInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface PlaceInterface extends RepositoryInterface
 {
 
     /**
@@ -10,7 +12,7 @@ interface PlaceInterface
      * @param  int      $page  Number of models per page
      * @param  int      $limit Results per page
      * @param  boolean  $all   Show published or all
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPage($page = 1, $limit = 10, array $with = array('translations'), $all = false);
 

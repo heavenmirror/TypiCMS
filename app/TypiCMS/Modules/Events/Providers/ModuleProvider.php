@@ -4,8 +4,8 @@ namespace TypiCMS\Modules\Events\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application;
 
 // Models
 use TypiCMS\Modules\Events\Models\Event;
@@ -54,7 +54,7 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Events\Repositories\EventInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Events\Repositories\EventInterface', function (Application $app) {
             $repository = new EloquentEvent(new Event);
             if (! Config::get('app.cache')) {
                 return $repository;
@@ -64,14 +64,14 @@ class ModuleProvider extends ServiceProvider
             return new CacheDecorator($repository, $laravelCache);
         });
 
-        $app->bind('TypiCMS\Modules\Events\Services\Form\EventForm', function ($app) {
+        $app->bind('TypiCMS\Modules\Events\Services\Form\EventForm', function (Application $app) {
             return new EventForm(
                 new EventFormLaravelValidator($app['validator']),
                 $app->make('TypiCMS\Modules\Events\Repositories\EventInterface')
             );
         });
 
-        $app->bind('TypiCMS\Modules\Events\Services\Calendar', function ($app) {
+        $app->bind('TypiCMS\Modules\Events\Services\Calendar', function (Application $app) {
             return new Calendar(
                 new EluceoCalendar('TypiCMS'),
                 new EluceoEvent

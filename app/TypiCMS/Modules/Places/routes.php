@@ -4,8 +4,7 @@ Route::model('places', 'TypiCMS\Modules\Places\Models\Place');
 if (! App::runningInConsole()) {
     Route::group(
         array(
-            'before'    => 'auth.public|cache',
-            'after'     => 'cache',
+            'before'    => 'visitor.publicAccess',
             'namespace' => 'TypiCMS\Modules\Places\Controllers',
         ),
         function () {
@@ -28,7 +27,6 @@ if (! App::runningInConsole()) {
 
 Route::group(
     array(
-        'before'    => 'auth.admin',
         'namespace' => 'TypiCMS\Modules\Places\Controllers',
         'prefix'    => 'admin',
     ),

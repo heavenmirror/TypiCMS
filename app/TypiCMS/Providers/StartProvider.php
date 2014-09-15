@@ -4,11 +4,9 @@ namespace TypiCMS\Providers;
 use App;
 use Config;
 use Request;
-use Artisan;
-
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Filesystem\Filesystem;
-
+use Illuminate\Foundation\Application;
 use TypiCMS\Commands\Install;
 use TypiCMS\Commands\CacheKeyPrefix;
 use TypiCMS\Commands\Database;
@@ -31,21 +29,6 @@ class StartProvider extends ServiceProvider
     {
         /*
         |--------------------------------------------------------------------------
-        | Bind commands.
-        |--------------------------------------------------------------------------|
-        */
-        $this->app->bind('command.install', function () {
-            return new Install(new Filesystem);
-        });
-        $this->app->bind('command.cachekeyprefix', function () {
-            return new CacheKeyPrefix(new Filesystem);
-        });
-        $this->app->bind('command.database', function () {
-            return new Database(new Filesystem);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
         | Set app locale on public side.
         |--------------------------------------------------------------------------|
         */
@@ -62,10 +45,25 @@ class StartProvider extends ServiceProvider
 
         /*
         |--------------------------------------------------------------------------
+        | Bind commands.
+        |--------------------------------------------------------------------------|
+        */
+        $this->app->bind('command.install', function () {
+            return new Install(new Filesystem);
+        });
+        $this->app->bind('command.cachekeyprefix', function () {
+            return new CacheKeyPrefix(new Filesystem);
+        });
+        $this->app->bind('command.database', function () {
+            return new Database(new Filesystem);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
         | Get custom routes for public side modules.
         |--------------------------------------------------------------------------|
         */
-        $this->app->singleton('TypiCMS.routes', function ($app) {
+        $this->app->singleton('TypiCMS.routes', function (Application $app) {
             return $app->make('TypiCMS\Modules\Menulinks\Repositories\MenulinkInterface')->getForRoutes();
         });
 
@@ -92,6 +90,7 @@ class StartProvider extends ServiceProvider
         $this->app->register('TypiCMS\Modules\Galleries\Providers\ModuleProvider');
         $this->app->register('TypiCMS\Modules\Dashboard\Providers\ModuleProvider');
         $this->app->register('TypiCMS\Modules\Menus\Providers\ModuleProvider');
+        $this->app->register('TypiCMS\Modules\Sitemap\Providers\ModuleProvider');
         // Pages and menulinks need to be at last for routing to work.
         $this->app->register('TypiCMS\Modules\Menulinks\Providers\ModuleProvider');
         $this->app->register('TypiCMS\Modules\Pages\Providers\ModuleProvider');

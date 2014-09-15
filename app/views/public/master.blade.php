@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="{{ Config::get('app.locale') }}">
 
 <head>
 
@@ -28,7 +28,7 @@
 
     <a href="#content" class="sr-only">@lang('db.Skip to content')</a>
 
-@if(Sentry::getUser() and Sentry::getUser()->hasAccess('admin'))
+@if(Sentry::getUser() and Sentry::getUser()->hasAccess('admin') and ! Input::get('preview'))
     @include('_navbar')
 @endif
 
@@ -59,7 +59,7 @@
         @yield('main')
 
         <div class="partners">
-            @if($partners = Partners::getAll() and count($partners))
+            @if($partners = Partners::getAll() and $partners->count())
             <h3>
                 <a href="{{ route($lang . '.partners') }}">@lang('db.Partners')</a>
             </h3>
@@ -105,6 +105,10 @@
     @endif
 
     {{ HTML::script(asset('js/public/components.min.js')) }}
+    {{ HTML::script(asset('js/public/master.js')) }}
+    @if (Input::get('preview'))
+    {{ HTML::script(asset('js/public/previewmode.js')) }}
+    @endif
     
     @yield('js')
 

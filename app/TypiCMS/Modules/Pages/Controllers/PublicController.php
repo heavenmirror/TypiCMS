@@ -7,12 +7,8 @@ use View;
 use Config;
 use Redirect;
 use Notification;
-
 use TypiCMS;
-
 use TypiCMS\Modules\Pages\Repositories\PageInterface;
-
-// Base controller
 use TypiCMS\Controllers\BasePublicController;
 
 class PublicController extends BasePublicController
@@ -27,7 +23,7 @@ class PublicController extends BasePublicController
     /**
      * Page uri : lang/slug
      *
-     * @return void
+     * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition|null
      */
     public function uri($uri = null)
     {
@@ -37,13 +33,13 @@ class PublicController extends BasePublicController
             }
             $model = $this->repository->getFirstBy('is_home', 1);
         } elseif (
-            in_array($uri, Config::get('app.locales')) and
+            in_array($uri, Config::get('app.locales')) &&
             Config::get('app.locale_in_url')
         ) {
             // Homepage: uri = /en (or other language)
             $model = $this->repository->getFirstBy('is_home', 1);
         } else {
-            $model = $this->repository->byUri($uri);
+            $model = $this->repository->getFirstByUri($uri);
         }
 
         if (! $model) {
@@ -86,7 +82,7 @@ class PublicController extends BasePublicController
         // If we don’t want the lang chooser, redirect to browser language
         if (! Config::get('typicms.langChooser')) {
             $locale = substr(getenv('HTTP_ACCEPT_LANGUAGE'), 0, 2);
-            ! in_array($locale, $locales) and $locale = Config::get('app.locale');
+            ! in_array($locale, $locales) && $locale = Config::get('app.locale');
             return Redirect::to($locale);
         }
 

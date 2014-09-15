@@ -1,17 +1,15 @@
 <?php
 namespace TypiCMS\Modules\Tags\Controllers;
 
-use View;
-use Input;
 use Config;
-use Request;
+use Input;
 use Paginator;
-
+use Redirect;
+use Request;
+use TypiCMS\Controllers\BaseAdminController;
 use TypiCMS\Modules\Tags\Repositories\TagInterface;
 use TypiCMS\Modules\Tags\Services\Form\TagForm;
-
-// Base controller
-use TypiCMS\Controllers\BaseAdminController;
+use View;
 
 class AdminController extends BaseAdminController
 {
@@ -44,7 +42,6 @@ class AdminController extends BaseAdminController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function destroy($model)

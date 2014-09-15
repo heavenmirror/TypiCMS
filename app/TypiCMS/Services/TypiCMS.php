@@ -7,8 +7,6 @@ use Route;
 use Config;
 use Request;
 
-use Sentry;
-
 /**
 * LangSwitcher
 */
@@ -82,8 +80,8 @@ class TypiCMS
     */
     private function getTranslatedUrl($lang)
     {
-        if ($this->model and $this->model->id) {
-            return $this->model->present()->publicUri($lang);
+        if ($this->model && $this->model->id) {
+            return $this->model->getPublicUri(false, false, $lang);
         }
         if ($routeName = Route::current()->getUri() != '/') {
             $routeName = $lang . strstr(Route::current()->getName(), '.');
@@ -96,23 +94,19 @@ class TypiCMS
     }
 
     /**
-    * Get url from model
+    * Get public url when no model loaded
     *
-    * @param string $lang
     * @return string
     */
-    public function getPublicUrl($lang = null)
+    public function getPublicUrl()
     {
-        $lang = $lang ?: Config::get('app.locale') ;
-        if ($this->model) {
-            return $this->model->present()->publicUri($lang);
-        }
+        $lang = Config::get('app.locale');
         $routeArray = explode('.', Route::current()->getName());
         $routeArray[0] = $lang;
         array_pop($routeArray);
         $route = implode('.', $routeArray);
 
-        if (Route::getRoutes()->hasNamedRoute($route)) {
+        if (Route::has($route)) {
             return route($route);
         }
         if (Config::get('app.locale_in_url')) {
@@ -151,7 +145,6 @@ class TypiCMS
                 $url = route('admin.' . $this->model->route . '.edit', $this->model->id);
             }
             $url .= '?locale=' . App::getLocale();
-            // $title = 'Edit ' . $this->model->title;
         }
         return HTML::link($url, $title, $attributes);
     }
@@ -181,5 +174,28 @@ class TypiCMS
             return true;
         }
         return false;
+    }
+
+    /**
+     * Indent values of an array with spaces.
+     *
+     * @return array
+     */
+    public function arrayIndent($array)
+    {
+        $parent = 0;
+        $items = [];
+        foreach ($array as $item) {
+            $indent = '';
+            if ($item->parent) {
+                $indent = '&nbsp;&nbsp;&nbsp;&nbsp;';
+                if ($parent && $parent < $item->parent) {
+                    $indent .= $indent;
+                }
+            }
+            $parent = $item->parent;
+            $items[$indent . $item->title] = $item->id;
+        }
+        return $items;
     }
 }

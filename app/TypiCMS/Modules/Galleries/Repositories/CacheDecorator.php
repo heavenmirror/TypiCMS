@@ -2,14 +2,12 @@
 namespace TypiCMS\Modules\Galleries\Repositories;
 
 use App;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements GalleryInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(GalleryInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -18,7 +16,7 @@ class CacheDecorator extends CacheAbstractDecorator implements GalleryInterface
 
     /**
      * Get all items name
-     * 
+     *
      * @return array with names
      */
     public function getNames()
@@ -45,6 +43,8 @@ class CacheDecorator extends CacheAbstractDecorator implements GalleryInterface
      */
     public function delete($model)
     {
+        $this->cache->flush();
+        $this->cache->flush('dashboard');
         return $this->repo->delete($model);
     }
 }

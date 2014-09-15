@@ -2,12 +2,10 @@
 namespace TypiCMS\Modules\Pages\Repositories;
 
 use DB;
-use App;
 use Input;
 use Config;
-
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Builder;
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentPage extends RepositoriesAbstract implements PageInterface
@@ -16,7 +14,6 @@ class EloquentPage extends RepositoriesAbstract implements PageInterface
     protected $urisAndSlugs = array();
     protected $flatUris = array();
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         parent::__construct();
@@ -34,7 +31,7 @@ class EloquentPage extends RepositoriesAbstract implements PageInterface
         $model = $this->model->find($data['id']);
         $model->fill($data);
 
-        $this->syncGalleries($model, $data);
+        $this->syncRelation($model, $data, 'galleries');
 
         $model->save();
 
@@ -62,7 +59,6 @@ class EloquentPage extends RepositoriesAbstract implements PageInterface
         $pages = DB::table('page_translations')
                    ->select('page_id', 'locale', 'uri', 'slug')
                    ->get();
-        // var_dump($pages);
         $urisAndSlugs = array();
         foreach ($pages as $page) {
             $urisAndSlugs[$page->page_id][$page->locale] = array(
@@ -74,18 +70,20 @@ class EloquentPage extends RepositoriesAbstract implements PageInterface
     }
 
     /**
-     * Get page by uri
+     * Get a page by its uri
      *
      * @param  string                      $uri
      * @return TypiCMS\Modules\Models\Page $model
      */
-    public function byUri($uri)
+    public function getFirstByUri($uri)
     {
         $model = $this->make(['translations'])
             ->where('is_home', 0)
-            ->whereHas('translations', function ($q) use ($uri) {
-                $q->where('uri', $uri);
-                $q->where('status', 1);
+            ->whereHas('translations', function (Builder $query) use ($uri) {
+                $query->where('uri', $uri);
+                if (! Input::get('preview')) {
+                    $query->where('status', 1);
+                }
             })
             ->withOnlineGalleries()
             ->firstOrFail();
@@ -95,7 +93,6 @@ class EloquentPage extends RepositoriesAbstract implements PageInterface
     /**
      * Retrieve children pages
      *
-     * @param  int        $id model ID
      * @return Collection
      */
     public function getChildren($uri, $all = false)

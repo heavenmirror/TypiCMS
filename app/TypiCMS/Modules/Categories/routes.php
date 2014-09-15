@@ -1,12 +1,15 @@
 <?php
 if (Request::segment(1) != 'admin') {
+
     Route::bind('categories', function ($value, $route) {
-        return TypiCMS\Modules\Categories\Models\Category::select('categories.id AS id', 'slug', 'locale', 'status')
+        $query = TypiCMS\Modules\Categories\Models\Category::select('categories.id AS id', 'slug', 'locale', 'status')
             ->join('category_translations', 'categories.id', '=', 'category_translations.category_id')
             ->where('slug', $value)
-            ->where('locale', App::getLocale())
-            ->where('status', 1)
-            ->firstOrFail();
+            ->where('locale', App::getLocale());
+        if (! Input::get('preview')) {
+            $query->where('status', 1);
+        }
+        return $query->firstOrFail();
     });
 
 } else {
@@ -17,7 +20,6 @@ if (Request::segment(1) != 'admin') {
 
 Route::group(
     array(
-        'before'    => 'auth.admin',
         'namespace' => 'TypiCMS\Modules\Categories\Controllers',
         'prefix'    => 'admin',
     ),

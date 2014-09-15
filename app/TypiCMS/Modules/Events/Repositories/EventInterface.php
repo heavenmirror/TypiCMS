@@ -1,12 +1,14 @@
 <?php
 namespace TypiCMS\Modules\Events\Repositories;
 
-interface EventInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface EventInterface extends RepositoryInterface
 {
 
     /**
      * Get incomings events
-     * 
+     *
      * @param  integer      $number number of items to take
      * @param  array        $with array of related items
      * @return Collection

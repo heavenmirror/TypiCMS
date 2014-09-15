@@ -6,7 +6,7 @@
     <span id="nb_elements">{{ $models->getTotal() }}</span> @choice('files::global.files', $models->getTotal())
 @stop
 
-@section('addButton')
+@section('titleLeftButton')
     <a id="uploaderAddButtonContainer" href="{{ route('admin.files.create') }}"><i id="uploaderAddButton" class="fa fa-plus-circle"></i><span class="sr-only">{{ ucfirst(trans('files::global.New')) }}</span></a>
 @stop
 
@@ -54,7 +54,7 @@
                         <td>{{ $model->present()->checkbox }}</td>
                         <td>{{ $model->present()->edit }}</td>
                         <td>{{ $model->position }}</td>
-                        <td>{{ $model->present()->thumb(null, 24) }}</td>
+                        <td>{{ $model->present()->thumb(null, 22) }}</td>
                         <td>{{ $model->filename }}</td>
                         <td>{{ $model->alt_attribute }}</td>
                         <td>{{ $model->width }} × {{ $model->height }}</td>

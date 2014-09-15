@@ -2,14 +2,12 @@
 namespace TypiCMS\Modules\Blocks\Repositories;
 
 use App;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements BlockInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(BlockInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -25,7 +23,7 @@ class CacheDecorator extends CacheAbstractDecorator implements BlockInterface
      */
     public function getAll(array $with = array(), $all = false)
     {
-        $cacheKey = md5(App::getLocale() . 'all' . $all . implode($with));
+        $cacheKey = md5(App::getLocale() . 'all' . $all . implode('.', $with));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
@@ -42,14 +40,14 @@ class CacheDecorator extends CacheAbstractDecorator implements BlockInterface
 
     /**
      * Get the content of a block
-     * 
+     *
      * @param  string $name unique name of the block
      * @param  array  $with linked
      * @return string       html
      */
     public function build($name = null, array $with = array('translations'))
     {
-        $cacheKey = md5(App::getLocale() . 'build' . $name . implode($with));
+        $cacheKey = md5(App::getLocale() . 'build' . $name . implode('.', $with));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);

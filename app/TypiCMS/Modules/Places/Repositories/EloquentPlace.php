@@ -1,21 +1,17 @@
 <?php
 namespace TypiCMS\Modules\Places\Repositories;
 
-use StdClass;
-
 use App;
-use Input;
-use Config;
-use Request;
-
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-
+use Input;
+use Request;
+use StdClass;
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         parent::__construct();
@@ -28,7 +24,7 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
      * @param  int      $page  Number of models per page
      * @param  int      $limit Results per page
      * @param  boolean  $all   Show published or all
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPage($page = 1, $limit = 10, array $with = array('translations'), $all = false)
     {
@@ -46,13 +42,13 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
             ->skip($limit * ($page - 1))
             ->take($limit);
 
-        ! $all and $query->where('status', 1);
+        ! $all && $query->where('status', 1);
         $query->order();
         $models = $query->get();
 
         // Build query to get totalItems
         $queryTotal = $this->model;
-        ! $all and $queryTotal->where('status', 1);
+        ! $all && $queryTotal->where('status', 1);
 
         // Put items and totalItems in StdClass
         $result->totalItems = $queryTotal->count();
@@ -66,7 +62,7 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
      *
      * @param  boolean  $all  Show published or all
      * @param  array    $with Eager load related models
-     * @return StdClass Object with $items
+     * @return \Illuminate\Database\Eloquent\Collection Object with $items
      */
     public function getAll(array $with = array('translations'), $all = false)
     {
@@ -79,7 +75,7 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
             // take only translated items that are online
             $query->whereHas(
                 'translations',
-                function ($query) {
+                function (Builder $query) {
                     $query->where('status', 1);
                     $query->where('locale', '=', App::getLocale());
                 }
@@ -91,7 +87,7 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
             $query->where('longitude', '!=', '');
         }
 
-        $string and $query->where('title', 'LIKE', '%'.$string.'%');
+        $string && $query->where('title', 'LIKE', '%'.$string.'%');
 
         $query->order();
 
@@ -104,7 +100,7 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
      * Get single model by slug
      *
      * @param  string $slug slug of model
-     * @return object model
+     * @return Model  $model
      */
     public function bySlug($slug, array $with = array('translations'))
     {
@@ -112,8 +108,10 @@ class EloquentPlace extends RepositoriesAbstract implements PlaceInterface
             ->where('slug', $slug)
             ->whereHas(
                 'translations',
-                function ($query) {
-                    $query->where('status', 1);
+                function (Builder $query) {
+                    if (! Input::get('preview')) {
+                        $query->where('status', 1);
+                    }
                     $query->where('locale', '=', App::getLocale());
                 }
             )

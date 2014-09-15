@@ -35,6 +35,7 @@ function initTinymce(selector) {
         // statusbar: false,
         block_formats : "Paragraph=p;Code=pre;Blockquote=blockquote;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6",
         style_formats : [
+            { title : 'Small text', inline: 'small' },
             { title : 'Image Left', selector : 'img', styles : { 'float': 'left', 'margin': '0 20px 20px 0' } },
             { title : 'Image Right', selector : 'img', styles : { 'float': 'right', 'margin': '0 0 20px 20px' } },
             { title : 'File (link)', selector : 'a', classes : 'file' },
@@ -42,7 +43,7 @@ function initTinymce(selector) {
         ],
         content_css : '/css/public.css,/components/tinymce/css/tiny_mce.css',
         toolbar: 'formatselect | styleselect | bold italic | subscript superscript | bullist numlist outdent indent | link unlink | alignleft aligncenter alignright alignjustify | table | nonbreaking | image | code | removeformat',
-        language_url: '/components/tinymce/langs/fr.js'
+        language_url: '/components/tinymce/langs/' + TypiCMS.adminLocale + '.js'
     });
 }
 
@@ -55,10 +56,10 @@ function initTinymce(selector) {
         /**
          * Slug fields
          */
-        for (var i = 0; i < langues.length; i++) {
-            var titleField = $('#' + langues[i] + '\\[title\\]');
+        for (var i = 0; i < TypiCMS.locales.length; i++) {
+            var titleField = $('#' + TypiCMS.locales[i] + '\\[title\\]');
             titleField.slug({
-                slugField: '#' + langues[i] + '\\[slug\\]'
+                slugField: '#' + TypiCMS.locales[i] + '\\[slug\\]'
             });
         };
         var titleField = $('#title');
@@ -127,55 +128,25 @@ function initTinymce(selector) {
         });
 
         /**
-         * Date and time picker
+         * Date picker
          */
-        if ($('.picker-date').length) {
-            $('.picker-date').datetimepicker({
-                icons: {
-                    time: "fa fa-clock-o",
-                    date: "fa fa-calendar",
-                    up: "fa fa-arrow-up",
-                    down: "fa fa-arrow-down"
-                },
-                format: 'DD.MM.YYYY',
-                pickTime: false,
-                language: lang
+        if ($('.datepicker').length) {
+            $('.datepicker').pickadate({
+                editable: true,
+                // formatSubmit: 'yyyy-mm-dd',
+                format: 'dd.mm.yyyy'
             });
-            $('.picker-date-start').on('dp.change', function (e) {
-                $('.picker-date-end').data('DateTimePicker').setMinDate(e.date);
-            });
-            $('.picker-date-end').on('dp.change', function (e) {
-                $('.picker-date-start').data('DateTimePicker').setMaxDate(e.date);
-            });
-        };
+        }
 
-        if ($('.picker-datetime').length) {
-            $('.picker-datetime').datetimepicker({
-                icons: {
-                    time: "fa fa-clock-o",
-                    date: "fa fa-calendar",
-                    up: "fa fa-arrow-up",
-                    down: "fa fa-arrow-down"
-                },
-                format: 'DD.MM.YYYY HH:mm',
-                useSeconds: false,
-                language: lang
+        /**
+         * Time picker
+         */
+        if ($('.timepicker').length) {
+            $('.timepicker').pickatime({
+                editable: true,
+                format: 'HH:i'
             });
-        };
-
-        if ($('.picker-time').length) {
-            $('.picker-time').datetimepicker({
-                icons: {
-                    time: "fa fa-clock-o",
-                    date: "fa fa-calendar",
-                    up: "fa fa-arrow-up",
-                    down: "fa fa-arrow-down"
-                },
-                format: 'HH:mm',
-                pickDate: false,
-                language: lang
-            });
-        };
+        }
 
     });
 

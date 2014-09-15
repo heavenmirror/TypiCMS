@@ -3,14 +3,12 @@ namespace TypiCMS\Modules\Places\Repositories;
 
 use App;
 use Input;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements PlaceInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(PlaceInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -24,11 +22,11 @@ class CacheDecorator extends CacheAbstractDecorator implements PlaceInterface
      * @param  int      $limit Results per page
      * @param  boolean  $all   get published models or all
      * @param  array    $with  Eager load related models
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPage($page = 1, $limit = 10, array $with = array('translations'), $all = false)
     {
-        $cacheKey = md5(App::getLocale().'byPage.'.$page.$limit.$all.implode(Input::except('page')));
+        $cacheKey = md5(App::getLocale().'byPage.'.$page.$limit.$all.implode('.', Input::except('page')));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
@@ -51,10 +49,7 @@ class CacheDecorator extends CacheAbstractDecorator implements PlaceInterface
      */
     public function getAll(array $with = array('translations'), $all = false)
     {
-        // get search string
-        $string = Input::get('string');
-
-        $cacheKey = md5(App::getLocale() . 'all' . $all . implode($with) . $string);
+        $cacheKey = md5(App::getLocale() . 'all' . $all . implode('.', $with) . implode('.', Input::all()));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
@@ -76,7 +71,7 @@ class CacheDecorator extends CacheAbstractDecorator implements PlaceInterface
      */
     public function bySlug($slug, array $with = array('translations'))
     {
-        $cacheKey = md5(App::getLocale().'slug.'.$slug);
+        $cacheKey = md5(App::getLocale() . 'bySlug' . $slug . implode('.', $with) . implode('.', Input::all()));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);

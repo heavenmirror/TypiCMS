@@ -1,10 +1,9 @@
 <?php
 namespace TypiCMS\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 
 class Install extends Command
 {
@@ -22,6 +21,13 @@ class Install extends Command
      * @var string
      */
     protected $description = 'Installation of TypiCMS: initial Laravel setup, composer, bower, npm';
+
+    /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
 
     /**
      * Create a new key generator command.
@@ -43,25 +49,44 @@ class Install extends Command
      */
     public function fire()
     {
-        $this->checkThatEnvTemplateExists();
+        $defaultEnvironmentFile = 'bootstrap/environment.local.php';
+        $environmentFile = 'bootstrap/environment.php';
 
         $this->line('Welcome to TypiCMS');
+
+        if (! $this->files->exists($environmentFile) && $this->files->exists($defaultEnvironmentFile)) {
+            // move default environment file so current environment will be local.
+            $this->files->move($defaultEnvironmentFile, $environmentFile);
+            // set environment to local
+            $this->laravel['env'] = 'local';
+            $this->line('----------------------');
+            $this->info('Environment set to local');
+            $this->line('----------------------');
+        }
+
+        $this->checkThatEnvTemplateExists();
 
         // Ask for database name
         $dbName = $this->ask('What is your database name? ');
 
         // Set database credentials in env.local.php and migrate
         $this->call('typicms:database', array('database' => $dbName));
+        $this->line('----------------------');
 
         // Set cache key prefix
         $this->call('cache:prefix', array('prefix' => $dbName));
+        $this->line('----------------------');
 
         // Composer install
         if (function_exists('system')) {
+            $this->info('Running npm install...');
             system('npm install');
             $this->info('npm packages installed');
+            $this->line('----------------------');
+            $this->info('Running bower install...');
             system('bower install');
             $this->info('Bower packages installed');
+            $this->line('----------------------');
             system('chmod -R 777 app/storage');
             $this->info('app/storage is now writable');
             system('chmod -R 777 public/uploads');
@@ -71,48 +96,21 @@ class Install extends Command
             $this->line('and run composer install, npm install and bower install.');
         }
 
-        // publish debugbar
-        $this->call('debugbar:publish');
-
         // Done
+        $this->line('----------------------');
         $this->line('Done. Enjoy TypiCMS!');
-        
+
     }
 
     /**
      * Check that env.php exists
-     * 
-     * @return void      exit if env.php is not found
+     *
+     * @return void      Exception if env.php is not found
      */
     public function checkThatEnvTemplateExists()
     {
         if (! $this->files->exists('env.php')) {
-            $this->error('No env.php template found.');
-            exit();
+            throw new Exception('No env.php template found.');
         }
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return array(
-            // array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return array(
-            // array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-        );
     }
 }

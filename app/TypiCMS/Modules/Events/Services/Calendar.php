@@ -3,6 +3,7 @@ namespace TypiCMS\Modules\Events\Services;
 
 use Eluceo\iCal\Component\Calendar as ElucleoCalendar;
 use Eluceo\iCal\Component\Event as ElucleoEvent;
+use TypiCMS\Modules\Events\Models\Event;
 
 class Calendar
 {
@@ -17,10 +18,10 @@ class Calendar
 
     /**
      * add an event to the calendar
-     * 
-     * @param $model
+     *
+     * @param Event $model
      */
-    public function add($model)
+    public function add(Event $model)
     {
         $this->iEvent->setNoTime(true);
 
@@ -44,12 +45,12 @@ class Calendar
         $this->iEvent->setSummary($model->title);
         $this->iEvent->setUseTimezone(true);
         // add it to the calendar
-        $this->iCalendar->addEvent($this->iEvent);
+        $this->iCalendar->addComponent($this->iEvent);
     }
 
     /**
      * Render .ics calendar
-     * 
+     *
      * @param $model
      */
     public function render()

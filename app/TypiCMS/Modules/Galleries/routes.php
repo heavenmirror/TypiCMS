@@ -8,8 +8,7 @@ Route::bind('galleries', function ($value, $route) {
 if (! App::runningInConsole()) {
     Route::group(
         array(
-            'before'    => 'auth.public|cache',
-            'after'     => 'cache',
+            'before'    => 'visitor.publicAccess',
             'namespace' => 'TypiCMS\Modules\Galleries\Controllers',
         ),
         function () {
@@ -32,7 +31,6 @@ if (! App::runningInConsole()) {
 
 Route::group(
     array(
-        'before'    => 'auth.admin',
         'namespace' => 'TypiCMS\Modules\Galleries\Controllers',
         'prefix'    => 'admin',
     ),

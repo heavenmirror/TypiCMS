@@ -1,7 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Pages\Repositories;
 
-interface PageInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface PageInterface extends RepositoryInterface
 {
 
     /**
@@ -20,9 +22,16 @@ interface PageInterface
     public function getAllUris();
 
     /**
+     * Get a page by its uri
+     *
+     * @param  string                      $uri
+     * @return TypiCMS\Modules\Models\Page $model
+     */
+    public function getFirstByUri($uri);
+
+    /**
      * Retrieve children pages
      *
-     * @param  int        $id model ID
      * @return Collection
      */
     public function getChildren($uri, $all = false);

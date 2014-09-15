@@ -2,14 +2,13 @@
 namespace TypiCMS\Modules\Pages\Repositories;
 
 use App;
-
+use Input;
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements PageInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(PageInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -33,15 +32,15 @@ class CacheDecorator extends CacheAbstractDecorator implements PageInterface
      * @param  string                      $uri
      * @return TypiCMS\Modules\Models\Page $model
      */
-    public function byUri($uri)
+    public function getFirstByUri($uri)
     {
-        $cacheKey = md5(App::getLocale().'byUri.'.$uri);
+        $cacheKey = md5(App::getLocale().'getFirstByUri.'.$uri.implode('.', Input::all()));
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
         }
 
-        $model = $this->repo->byUri($uri);
+        $model = $this->repo->getFirstByUri($uri);
 
         // Store in cache for next request
         $this->cache->put($cacheKey, $model);
@@ -53,7 +52,6 @@ class CacheDecorator extends CacheAbstractDecorator implements PageInterface
     /**
      * Retrieve children pages
      *
-     * @param  int        $id model ID
      * @return Collection
      */
     public function getChildren($uri, $all = false)

@@ -2,15 +2,12 @@
 namespace TypiCMS\Modules\Settings\Repositories;
 
 use stdClass;
-
 use DB;
-
 use Illuminate\Database\Eloquent\Model;
 
 class EloquentSetting implements SettingInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -21,7 +18,7 @@ class EloquentSetting implements SettingInterface
      *
      * @param  boolean  $all  Show published or all
      * @param  array    $with Eager load related models
-     * @return StdClass Object with $items
+     * @return stdClass Object with $items
      */
     public function getAll(array $with = array(), $all = false)
     {
@@ -65,7 +62,7 @@ class EloquentSetting implements SettingInterface
                 $model->group_name = $group_name;
                 $model->key_name = $key_name;
                 $model->value = $value;
-                $save = $model->save();
+                $model->save();
             }
         }
 

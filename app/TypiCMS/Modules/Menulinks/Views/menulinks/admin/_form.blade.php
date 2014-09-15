@@ -1,12 +1,17 @@
 @section('js')
-    {{ HTML::script(asset('//tinymce.cachefly.net/4.0/tinymce.min.js')) }}
+    {{ HTML::script(asset('//tinymce.cachefly.net/4.1/tinymce.min.js')) }}
     {{ HTML::script(asset('js/admin/form.js')) }}
+@stop
+
+@section('titleLeftButton')
+    <a href="{{ route('admin.menus.menulinks.index', $menu->id) }}" title="{{ trans('menulinks::global.Back') }}">
+        <span class="text-muted fa fa-arrow-circle-left"></span><span class="sr-only">{{ trans('menulinks::global.Back') }}</span>
+    </a>
 @stop
 
 <div class="form-group">
     <button class="btn btn-primary" value="true" id="exit" name="exit" type="submit">@lang('validation.attributes.save and exit')</button>
     <button class="btn btn-default" type="submit">@lang('validation.attributes.save')</button>
-    <a href="{{ route('admin.menus.menulinks.index', $menu->id) }}" class="btn btn-default">@lang('validation.attributes.exit')</a>
 </div>
 
 <div class="row">
@@ -36,12 +41,10 @@
                 <div class="form-group @if($errors->has($lang.'.url'))has-error @endif">
                     {{ Form::label($lang.'[url]', trans('validation.attributes.website')) }}
                     {{ Form::text($lang.'[url]', $model->translate($lang)->url, array('class' => 'form-control', 'placeholder' => 'http://')) }}
-                    @if($errors->has($lang.'.url'))
-                    <span class="help-block">{{ $errors->first($lang.'.url') }}</span>
-                    @endif
+                    {{ $errors->first($lang.'.url', '<p class="help-block">:message</p>') }}
                 </div>
-                <div class="form-group">
-                    <label class="checkbox">
+                <div class="checkbox">
+                    <label>
                         {{ Form::checkbox($lang.'[status]', 1, $model->translate($lang)->status) }} @lang('validation.attributes.online')
                     </label>
                 </div>
@@ -63,6 +66,12 @@
         <div class="form-group">
             {{ Form::label('module_name', trans('validation.attributes.module_name')) }}
             {{ Form::select('module_name', $selectModules, null, array('class' => 'form-control')) }}
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox">
+                {{ Form::checkbox('has_categories') }} @lang('validation.attributes.has_categories')
+            </label>
         </div>
 
         <div class="form-group">

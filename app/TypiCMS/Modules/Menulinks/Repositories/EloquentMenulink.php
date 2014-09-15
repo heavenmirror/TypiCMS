@@ -2,18 +2,12 @@
 namespace TypiCMS\Modules\Menulinks\Repositories;
 
 use DB;
-use Config;
-use Request;
-
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentMenulink extends RepositoriesAbstract implements MenulinkInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;

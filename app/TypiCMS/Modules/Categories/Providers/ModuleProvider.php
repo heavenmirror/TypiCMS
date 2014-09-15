@@ -4,8 +4,8 @@ namespace TypiCMS\Modules\Categories\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application;
 
 // Models
 use TypiCMS\Modules\Categories\Models\Category;
@@ -49,7 +49,7 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Categories\Repositories\CategoryInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Categories\Repositories\CategoryInterface', function (Application $app) {
             $repository = new EloquentCategory(new Category);
             if (! Config::get('app.cache')) {
                 return $repository;
@@ -59,7 +59,7 @@ class ModuleProvider extends ServiceProvider
             return new CacheDecorator($repository, $laravelCache);
         });
 
-        $app->bind('TypiCMS\Modules\Categories\Services\Form\CategoryForm', function ($app) {
+        $app->bind('TypiCMS\Modules\Categories\Services\Form\CategoryForm', function (Application $app) {
             return new CategoryForm(
                 new CategoryFormLaravelValidator($app['validator']),
                 $app->make('TypiCMS\Modules\Categories\Repositories\CategoryInterface')

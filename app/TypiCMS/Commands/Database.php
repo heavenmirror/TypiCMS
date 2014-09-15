@@ -1,10 +1,8 @@
 <?php
 namespace TypiCMS\Commands;
 
-use DB;
+use Exception;
 use Schema;
-
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,6 +25,13 @@ class Database extends Command
     protected $description = "Set database credentials in env.php";
 
     /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
+
+    /**
      * Create a new key generator command.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
@@ -46,7 +51,7 @@ class Database extends Command
      */
     public function fire()
     {
-        list($path, $contents) = $this->getKeyFile();
+        $contents = $this->getKeyFile();
 
         $dbName = $this->argument('database');
         $dbUserName = $this->ask('What is your MySQL username?');
@@ -67,8 +72,7 @@ class Database extends Command
         $contents = str_replace($search, $replace, $contents, $count);
 
         if ($count != 3) {
-            $this->error("Error on writing credentials to .env.php.");
-            exit();
+            throw new Exception('Error while writing credentials to .env.php.');
         }
 
         // Set DB credentials to laravel config
@@ -107,11 +111,10 @@ class Database extends Command
     /**
      * Get the key file and contents.
      *
-     * @return array
+     * @return string
      */
     protected function getKeyFile()
     {
-        $contents = $this->files->get($path = "env.php");
-        return array($path, $contents);
+        return $this->files->get('env.php');
     }
 }

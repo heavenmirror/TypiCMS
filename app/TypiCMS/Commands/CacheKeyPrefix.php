@@ -1,7 +1,6 @@
 <?php
 namespace TypiCMS\Commands;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,6 +21,13 @@ class CacheKeyPrefix extends Command
      * @var string
      */
     protected $description = "Set the application cache key prefix";
+
+    /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
 
     /**
      * Create a new key generator command.
@@ -71,7 +77,7 @@ class CacheKeyPrefix extends Command
     /**
      * Get the key file and contents.
      *
-     * @return array
+     * @return string[]
      */
     protected function getKeyFile()
     {

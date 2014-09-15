@@ -7,12 +7,10 @@ use Config;
 use Request;
 use TypiCMS;
 use Redirect;
+use Response;
 use Paginator;
-
 use TypiCMS\Modules\Partners\Repositories\PartnerInterface;
 use TypiCMS\Modules\Partners\Services\Form\PartnerForm;
-
-// Base controller
 use TypiCMS\Controllers\BaseAdminController;
 
 class AdminController extends BaseAdminController
@@ -60,13 +58,11 @@ class AdminController extends BaseAdminController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function edit($model)
     {
         $this->title['child'] = trans('partners::global.Edit');
-        TypiCMS::setModel($model);
         $this->layout->content = View::make('partners.admin.edit')
             ->withModel($model);
     }
@@ -74,7 +70,6 @@ class AdminController extends BaseAdminController
     /**
      * Show resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($model)
@@ -105,12 +100,13 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function update($model)
     {
-        Request::ajax() and exit($this->repository->update(Input::all()));
+        if (Request::ajax()) {
+            return Response::json($this->repository->update(Input::all()));
+        }
 
         if ($this->form->update(Input::all())) {
             return Input::get('exit') ?
@@ -126,18 +122,16 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function sort()
     {
-        $sort = $this->repository->sort(Input::all());
+        $this->repository->sort(Input::all());
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function destroy($model)

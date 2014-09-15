@@ -1,13 +1,8 @@
 <?php
 namespace TypiCMS\Modules\Menus\Models;
 
-use App;
-use HTML;
-
 use Dimsav\Translatable\Translatable;
-
 use TypiCMS\Models\Base;
-use TypiCMS\Presenters\Presenter;
 use TypiCMS\Presenters\PresentableTrait;
 
 class Menu extends Base
@@ -54,6 +49,6 @@ class Menu extends Base
      */
     public function menulinks()
     {
-        return $this->hasMany('TypiCMS\Modules\Menulinks\Models\Menulink');
+        return $this->hasMany('TypiCMS\Modules\Menulinks\Models\Menulink')->orderBy('position', 'asc');
     }
 }

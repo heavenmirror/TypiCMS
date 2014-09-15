@@ -4,12 +4,8 @@ namespace TypiCMS\Modules\Projects\Controllers;
 use App;
 use Str;
 use View;
-
 use TypiCMS;
-
 use TypiCMS\Modules\Projects\Repositories\ProjectInterface;
-
-// Base controller
 use TypiCMS\Controllers\BasePublicController;
 
 class PublicController extends BasePublicController
@@ -49,7 +45,6 @@ class PublicController extends BasePublicController
     /**
      * Show resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($category = null, $slug = null)

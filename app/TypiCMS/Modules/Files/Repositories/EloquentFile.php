@@ -2,20 +2,13 @@
 namespace TypiCMS\Modules\Files\Repositories;
 
 use StdClass;
-
-use input;
-use Config;
-
 use Illuminate\Database\Eloquent\Model;
-
 use FileUpload;
-
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentFile extends RepositoriesAbstract implements FileInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -30,7 +23,7 @@ class EloquentFile extends RepositoriesAbstract implements FileInterface
      * @param  boolean  $all   get published models or all
      * @param  array    $with  Eager load related models
      * @param  string   $type  file type : a,v,d,i,o
-     * @return StdClass Object with $items and $totalItems for pagination
+     * @return StdClass Object with $items && $totalItems for pagination
      */
     public function byPageFrom(
         $page = 1,
@@ -93,7 +86,7 @@ class EloquentFile extends RepositoriesAbstract implements FileInterface
      */
     public function create(array $data)
     {
-        if (isset($data['file']) and $data['file']) {
+        if (isset($data['file']) && $data['file']) {
             $path = 'uploads/';
             $file = FileUpload::handle($data['file'], $path);
             $data = array_merge($data, $file);
@@ -119,7 +112,7 @@ class EloquentFile extends RepositoriesAbstract implements FileInterface
      */
     public function update(array $data)
     {
-        if (isset($data['file']) and $data['file']) {
+        if (isset($data['file']) && $data['file']) {
             $path = 'uploads/';
             $file = FileUpload::handle($data['file'], $path);
             $data = array_merge($data, $file);

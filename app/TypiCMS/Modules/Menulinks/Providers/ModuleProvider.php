@@ -4,8 +4,8 @@ namespace TypiCMS\Modules\Menulinks\Providers;
 use Lang;
 use View;
 use Config;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application;
 
 // Model
 use TypiCMS\Modules\Menulinks\Models\Menulink;
@@ -40,7 +40,7 @@ class ModuleProvider extends ServiceProvider
 
         $app = $this->app;
 
-        $app->bind('TypiCMS\Modules\Menulinks\Repositories\MenulinkInterface', function ($app) {
+        $app->bind('TypiCMS\Modules\Menulinks\Repositories\MenulinkInterface', function (Application $app) {
             $repository = new EloquentMenulink(new Menulink);
             if (! Config::get('app.cache')) {
                 return $repository;
@@ -50,7 +50,7 @@ class ModuleProvider extends ServiceProvider
             return new CacheDecorator($repository, $laravelCache);
         });
 
-        $app->bind('TypiCMS\Modules\Menulinks\Services\Form\MenulinkForm', function ($app) {
+        $app->bind('TypiCMS\Modules\Menulinks\Services\Form\MenulinkForm', function (Application $app) {
             return new MenulinkForm(
                 new MenulinkFormLaravelValidator($app['validator']),
                 $app->make('TypiCMS\Modules\Menulinks\Repositories\MenulinkInterface')

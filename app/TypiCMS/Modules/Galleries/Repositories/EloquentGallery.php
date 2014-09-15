@@ -1,16 +1,13 @@
 <?php
 namespace TypiCMS\Modules\Galleries\Repositories;
 
-use App;
-
 use Illuminate\Database\Eloquent\Model;
-
 use TypiCMS\Repositories\RepositoriesAbstract;
+use TypiCMS\Modules\Files\Models\File;
 
 class EloquentGallery extends RepositoriesAbstract implements GalleryInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -18,7 +15,7 @@ class EloquentGallery extends RepositoriesAbstract implements GalleryInterface
 
     /**
      * Get all items name
-     * 
+     *
      * @return array with names
      */
     public function getNames()
@@ -34,7 +31,7 @@ class EloquentGallery extends RepositoriesAbstract implements GalleryInterface
     public function delete($model)
     {
         if ($model->files) {
-            $model->files->each(function ($file) {
+            $model->files->each(function (File $file) {
                 $file->delete();
             });
         }

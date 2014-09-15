@@ -1,7 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Groups\Repositories;
 
-interface GroupInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface GroupInterface extends RepositoryInterface
 {
 
     /**
@@ -15,7 +17,7 @@ interface GroupInterface
      * Update the specified resource in storage.
      *
      * @param  int      $id
-     * @return Response
+     * @return boolean
      */
     public function update(array $id);
 
@@ -23,7 +25,7 @@ interface GroupInterface
      * Remove the specified resource from storage.
      *
      * @param  int      $id
-     * @return Response
+     * @return boolean
      */
     public function destroy($id);
 
@@ -46,7 +48,7 @@ interface GroupInterface
     /**
      * Return all the registered users
      *
-     * @return stdObject Collection of users
+     * @return \Illuminate\Support\Collection Collection of users
      */
     public function all();
 }

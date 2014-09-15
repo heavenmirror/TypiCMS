@@ -5,12 +5,8 @@ use View;
 use Input;
 use Request;
 use Redirect;
-use Notification;
-
 use TypiCMS\Modules\Groups\Repositories\GroupInterface;
 use TypiCMS\Modules\Groups\Services\Form\GroupForm;
-
-// Base controller
 use TypiCMS\Controllers\BaseAdminController;
 
 class AdminController extends BaseAdminController
@@ -19,8 +15,8 @@ class AdminController extends BaseAdminController
     /**
      * __construct
      *
-     * @param Groupnterface $group
-     * @param GroupForm     $groupform
+     * @param GroupInterface $group
+     * @param GroupForm     $groupForm
      */
     public function __construct(GroupInterface $group, GroupForm $groupForm)
     {

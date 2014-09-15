@@ -2,20 +2,20 @@
 namespace TypiCMS\Modules\Menus\Repositories;
 
 use App;
-use HTML;
+use Categories;
 use Config;
-use Request;
-use Notification;
 use ErrorException;
-
+use HTML;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-
+use Notification;
+use Request;
+use TypiCMS\Modules\Menulinks\Models\Menulink;
 use TypiCMS\Repositories\RepositoriesAbstract;
 
 class EloquentMenu extends RepositoriesAbstract implements MenuInterface
 {
 
-    // Class expects an Eloquent model
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -29,13 +29,14 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
     public function getAllMenus()
     {
         $with = [
+            'translations',
             'menulinks.translations',
             'menulinks.page.translations',
         ];
         $menus = $this->make($with)
             ->whereHas(
                 'translations',
-                function ($query) {
+                function (Builder $query) {
                     $query->where('status', 1);
                     $query->where('locale', App::getLocale());
                 }
@@ -46,7 +47,7 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
         foreach ($menus as $menu) {
 
             // remove offline items from each menu
-            $menu->menulinks = $menu->menulinks->filter(function ($menulink) {
+            $menu->menulinks = $menu->menulinks->filter(function (Menulink $menulink) {
                 if ($menulink->status == 1) {
                     return true;
                 }
@@ -60,9 +61,9 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
 
     /**
      * Get a menu
-     * 
-     * @param  string $name       menu name
-     * @return Collection         nested collection
+     *
+     * @param  string $name menu name
+     * @return Model  $menu nested collection
      */
     public function getMenu($name)
     {
@@ -79,29 +80,37 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
             return null;
         }
 
-        $menu->menulinks->each(function ($menulink) {
-            $menulink->uri = $this->setUri($menulink);
-            $menulink->class = $this->setClass($menulink);
-        });
-
-        $menu->menulinks->sortBy(function ($menulink) {
-            return $menulink->position;
-        });
+        $menu->menulinks = $this->prepare($menu->menulinks);
 
         $menu->menulinks->nest();
 
         return $menu;
     }
 
+    public function prepare($items = null)
+    {
+        $items->each(function ($item) {
+            if ($item->has_categories) {
+                $item->children = $this->prepare(Categories::getAllForMenu($item->uri));
+            }
+            $item->uri = $this->setUri($item);
+            $item->class = $this->setClass($item);
+        });
+
+        return $items;
+    }
+
     /**
      * Build a menu
-     * 
+     *
      * @param  string $name       menu name
      * @return mixed null or string (html code of a menu)
      */
     public function build($name)
     {
-        $menu = $this->getMenu($name);
+        if (! $menu = $this->getMenu($name)) {
+            return null;
+        }
 
         $attributes = [
             'class' => $menu->class,
@@ -116,7 +125,7 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
      * 1. Uri = menulink->uri or
      * 2. if page linke, take the uri of the page or
      * 3. if url field filled, take it
-     * 
+     *
      * @param Model   $menulink
      * @return string uri
      */
@@ -124,15 +133,17 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
     {
         $uri = $menulink->uri;
 
-        if (! $uri and $menulink->module_name) {
+        if (! $uri && $menulink->module_name) {
             $uri = 'admin/' . $menulink->module_name;
         }
 
         if ($menulink->page) {
+            $uri = $menulink->page->uri;
             if ($menulink->page->is_home) {
-                $uri = Config::get('app.locale');
-            } else {
-                $uri = $menulink->page->uri;
+                $uri = '';
+                if (Config::get('app.locale_in_url')) {
+                    $uri = Config::get('app.locale');
+                }
             }
         }
 
@@ -148,16 +159,16 @@ class EloquentMenu extends RepositoriesAbstract implements MenuInterface
 
     /**
      * Take the classes from field and add active if needed
-     * 
+     *
      * @param Model   $menulink
      * @return string classes
      */
     public function setClass($menulink)
     {
         $activeUri = '/' . Request::path();
-        if ($menulink->uri == $activeUri or
+        if ($menulink->uri == $activeUri ||
                 (
-                    strlen($menulink->uri) > 3 and
+                    strlen($menulink->uri) > 3 &&
                     preg_match('@^'.$menulink->uri.'@', $activeUri)
                 )
             ) {

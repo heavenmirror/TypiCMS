@@ -2,15 +2,12 @@
 namespace TypiCMS\Modules\Translations\Repositories;
 
 use App;
-use Request;
-
 use TypiCMS\Repositories\CacheAbstractDecorator;
 use TypiCMS\Services\Cache\CacheInterface;
 
 class CacheDecorator extends CacheAbstractDecorator implements TranslationInterface
 {
 
-    // Class expects a repo and a cache interface
     public function __construct(TranslationInterface $repo, CacheInterface $cache)
     {
         $this->repo = $repo;
@@ -26,7 +23,7 @@ class CacheDecorator extends CacheAbstractDecorator implements TranslationInterf
      */
     public function getAll(array $with = array(), $all = false)
     {
-        $cacheKey = md5(App::getLocale() . 'all' . implode($with) . $all);
+        $cacheKey = md5(App::getLocale() . 'all' . implode('.', $with) . $all);
 
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);

@@ -8,13 +8,9 @@ use Request;
 use Redirect;
 use Response;
 use Paginator;
-
 use TypiCMS;
-
 use TypiCMS\Modules\Galleries\Repositories\GalleryInterface;
 use TypiCMS\Modules\Galleries\Services\Form\GalleryForm;
-
-// Base controller
 use TypiCMS\Controllers\BaseAdminController;
 
 class AdminController extends BaseAdminController
@@ -59,12 +55,10 @@ class AdminController extends BaseAdminController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function edit($model)
     {
-        TypiCMS::setModel($model);
         $this->title['child'] = trans('galleries::global.Edit');
         $this->layout->content = View::make('galleries.admin.edit')
             ->with('model', $model);
@@ -73,7 +67,6 @@ class AdminController extends BaseAdminController
     /**
      * Show resource.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($model)
@@ -104,12 +97,13 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function update($model)
     {
-        Request::ajax() and exit($this->repository->update(Input::all()));
+        if (Request::ajax()) {
+            return Response::json($this->repository->update(Input::all()));
+        }
 
         if ($this->form->update(Input::all())) {
             return (Input::get('exit')) ?
@@ -126,7 +120,6 @@ class AdminController extends BaseAdminController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function sort()
@@ -137,7 +130,6 @@ class AdminController extends BaseAdminController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
      * @return Response
      */
     public function destroy($model)

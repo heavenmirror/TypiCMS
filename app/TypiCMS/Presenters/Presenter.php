@@ -1,13 +1,7 @@
 <?php
 namespace TypiCMS\Presenters;
 
-use Route;
-use Config;
-
-use Exception;
-
 use Croppa;
-
 use Carbon\Carbon;
 
 abstract class Presenter
@@ -48,9 +42,14 @@ abstract class Presenter
     */
     public function status()
     {
-        $class = ($this->entity->status) ? 'online' : 'offline' ;
+        $class  = 'off';
+        $status = 'Offline';
+        if ($this->entity->status) {
+            $class  = 'on';
+            $status = 'Online';
+        }
 
-        return '<span class="switch ' . $class . '">' . trans('global.En ligne/Hors ligne') . '</span>';
+        return '<span class="switch fa fa-fw fa-toggle-' . $class . '"><i class="sr-only">' . trans('global.' . $status) . '</i></span>';
     }
 
     /**
@@ -86,53 +85,8 @@ abstract class Presenter
     }
 
     /**
-     * Get the front end url from the current back end url
-     * 
-     * @param  string $lang
-     * @return string url
-     */
-    public function publicUri($lang)
-    {
-        $routeName = $lang . strstr(Route::current()->getName(), '.');
-        $routeName = preg_replace('/\.edit$/', '.slug', $routeName);
-        // If model is translated and is online
-        if (isset($this->entity->translate($lang)->slug) and $this->entity->translate($lang)->status) {
-            try { // Does this public route exists ?
-                if ($this->entity->category) { // there is a category
-                    return route(
-                        $routeName,
-                        array(
-                            $this->entity->category->translate($lang)->slug,
-                            $this->entity->translate($lang)->slug
-                        )
-                    );
-                }
-                return route($routeName, $this->entity->translate($lang)->slug);
-            } catch (Exception $e) {
-                if (Config::get('app.locale_in_url')) {
-                    return $lang;
-                }
-                return '/';
-            }
-        }
-        // If model is offline or there is no translation
-        $routeName = substr($routeName, 0, strrpos($routeName, '.'));
-        try { // Does this public route exists ?
-            if ($this->entity->category) { // there is a category
-                return route($routeName, $this->entity->category->translate($lang)->slug);
-            }
-            return route($routeName);
-        } catch (Exception $e) {
-            if (Config::get('app.locale_in_url')) {
-                return $lang;
-            }
-            return '/';
-        }
-    }
-
-    /**
      * Return resource's date or curent date if empty
-     * 
+     *
      * @param  string $fieldname
      * @param  string $format date format
      * @return Carbon
@@ -145,7 +99,7 @@ abstract class Presenter
 
     /**
      * Return a resized or cropped image
-     * 
+     *
      * @param  int $width      width of image, null for auto
      * @param  int $height     height of image, null for auto
      * @param  array $options  see Croppa doc for options (https://github.com/BKWLD/croppa)
@@ -161,5 +115,28 @@ abstract class Presenter
         }
         $src = Croppa::url($file, $width, $height, $options);
         return '<img class="img-responsive" src="' . $src . '" alt="">';
+    }
+
+    /**
+     * Return an icon and file name
+     *
+     * @param  int $size       size of the icon
+     * @param  string $field   field name
+     * @return string          HTML markup of an image
+     */
+    public function icon($size = 2, $field = 'document')
+    {
+        $uploadDir = '/uploads';
+        $file = $uploadDir . '/' . $this->entity->getTable() . '/' . $this->entity->$field;
+        if (! is_file(public_path() . $file)) {
+            $file = $uploadDir . '/img-not-found.png';
+        }
+        $html = '<div class="doc">';
+        $html .= '<span class="text-center fa fa-file-text-o fa-' . $size . 'x"></span>';
+        $html .= '<a href="' . $file . '">';
+        $html .= $this->entity->$field;
+        $html .= '</a>';
+        $html .= '</div>';
+        return $html;
     }
 }

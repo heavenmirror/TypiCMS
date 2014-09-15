@@ -1,7 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Menus\Repositories;
 
-interface MenuInterface
+use TypiCMS\Repositories\RepositoryInterface;
+
+interface MenuInterface extends RepositoryInterface
 {
 
     /**
@@ -13,7 +15,7 @@ interface MenuInterface
 
     /**
      * Build a menu
-     * 
+     *
      * @param  string $name       menu name
      * @return string             html code of a menu
      */
@@ -21,7 +23,7 @@ interface MenuInterface
 
     /**
      * Get a menu
-     * 
+     *
      * @param  string $name       menu name
      * @return Collection         nested collection
      */

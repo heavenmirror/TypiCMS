@@ -1,9 +1,9 @@
 <?php
 namespace TypiCMS\Modules\Menulinks\Repositories;
 
-use Illuminate\Support\Collection;
+use TypiCMS\Repositories\RepositoryInterface;
 
-interface MenulinkInterface
+interface MenulinkInterface extends RepositoryInterface
 {
 
     /**

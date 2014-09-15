@@ -5,12 +5,8 @@ use Str;
 use View;
 use Request;
 use Response;
-
 use TypiCMS;
-
 use TypiCMS\Modules\Places\Repositories\PlaceInterface;
-
-// Base controller
 use TypiCMS\Controllers\BasePublicController;
 
 class PublicController extends BasePublicController
@@ -64,7 +60,6 @@ class PublicController extends BasePublicController
     /**
      * Show place.
      *
-     * @param  int      $id
      * @return Response
      */
     public function show($slug)
@@ -73,7 +68,6 @@ class PublicController extends BasePublicController
 
         TypiCMS::setModel($model);
 
-        // dd($model->toJson());
         if (Request::wantsJson()) {
             return Response::json($model, 200);
         }

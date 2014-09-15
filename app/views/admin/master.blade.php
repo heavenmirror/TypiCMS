@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ Config::get('app.locale') }}">
+<html lang="{{ Config::get('typicms.adminLocale') }}">
 
 <head>
 
@@ -9,19 +9,13 @@
     <title>{{ $title }}</title>
 
     @yield('css')
+
     {{ HTML::style(asset('css/admin.css')) }}
 
-    {{ HTML::script(asset('js/admin/components.min.js')) }}
-
-    @if(Config::get('app.locale') != 'en')
-        {{ HTML::script(asset('js/datepicker-locales/bootstrap-datetimepicker.'.Config::get('app.locale').'.js')) }}
-    @endif
-
-    {{ HTML::script(asset('js/admin/components-custom.min.js')) }}
-
-    @yield('js')
-
-    {{ HTML::script(asset('js/admin/master.js')) }}
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
 </head>
 
@@ -43,40 +37,36 @@
 
         <div class="@section('mainClass')col-xs-12 col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main @show">
 
-            <script type="text/javascript">
-                {{ Notification::showError('alertify.error(\':message\');') }}
-                {{ Notification::showInfo('alertify.log(\':message\');') }}
-                {{ Notification::showSuccess('alertify.success(\':message\');') }}
-            </script>
-
             @section('page-header')
+                
+                @section('breadcrumbs')
+                    @if (Config::get('typicms.breadcrumb'))
+                        {{ Breadcrumbs::renderIfExists() }}
+                    @endif
+                @show
 
-            <p class="pull-left visible-xs btn-toggle-offcanvas">
-                <button class="btn btn-link" data-toggle="offcanvas"><span class="fa fa-bars fa-lg"></span> <span class="sr-only">@lang('global.Toggle navigation')</span></button>
-            </p>
-            
-            @section('breadcrumbs')
-            {{ Breadcrumbs::renderIfExists() }}
+                <div class="page-header">
+                    <h1>
+                        @yield('titleLeftButton')
+                        @section('h1')
+                        {{ $h1 }}
+                        @show
+                        @yield('titleSmall')
+                    </h1>
+                </div>
             @show
-
-            <div class="page-header">
-                <h1>
-                    @yield('addButton')
-                    @section('h1')
-                    {{ $h1 }}
-                    @show
-                    @yield('titleSmall')
-                </h1>
-            </div>
-            @show
-
-            @yield('buttons')
 
             @yield('main')
 
         </div>
 
         @include('admin._footer')
+
+        <script type="text/javascript">
+            {{ Notification::showError('alertify.error(\':message\');') }}
+            {{ Notification::showInfo('alertify.log(\':message\');') }}
+            {{ Notification::showSuccess('alertify.success(\':message\');') }}
+        </script>
 
     </div>
 

@@ -1,4 +1,9 @@
-# TypiCMS [![Build Status](https://travis-ci.org/sdebacker/TypiCMS.svg?branch=master)](https://travis-ci.org/sdebacker/TypiCMS)
+# TypiCMS
+[![Build Status](https://travis-ci.org/sdebacker/TypiCMS.svg?branch=master)](https://travis-ci.org/sdebacker/TypiCMS)
+[![Latest Stable Version](https://poser.pugx.org/sdebacker/typicms/v/stable.svg)](https://packagist.org/packages/sdebacker/typicms)
+[![License](https://poser.pugx.org/sdebacker/typicms/license.svg)](https://packagist.org/packages/sdebacker/typicms)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sdebacker/TypiCMS/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sdebacker/TypiCMS/?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/5c96a56f-2006-4911-bf7c-d9afad35db5a/mini.png)](https://insight.sensiolabs.com/projects/5c96a56f-2006-4911-bf7c-d9afad35db5a)
 
 TypiCMS is a multilingual content management system built with [Laravel 4.2](http://laravel.com).  
 [Bower](http://bower.io) and [gulp](http://gulpjs.com) are used for assets management and user interface is build with [Bootstrap 3](http://getbootstrap.com) with Less.
@@ -32,9 +37,10 @@ TypiCMS is a multilingual content management system built with [Laravel 4.2](htt
   - [Files](#files)
   - [Galleries](#galleries)
   - [User and groups](#users-and-groups)
-  - [Settings](#settings)
   - [Blocks](#blocks)
   - [Translations](#translations)
+  - [Sitemap](#sitemap)
+  - [Settings](#settings)
 - [Facades](#facades)
 - [Artisan commands](#artisan-commands)
 - [Roadmap](#roadmap)
@@ -80,7 +86,7 @@ This kind of urls are managed by the CMS :
    ```
    cd mywebsite
    ```
-5. Initialise TypiCMS
+5. DB Migrate and seed, npm install, bower install and chmod dirs
 
    ```
    php artisan typicms:install
@@ -238,6 +244,11 @@ Each cell of the translation table is editable in place.
 
 You can call DB translation everywhere with ``` Lang::get('db.Key') ```, ``` trans('db.Key') ``` or ``` @lang('db.Key') ```.
 
+### Sitemap
+
+Route sitemap.xml generate a sitemap file in xml format.  
+Configure modules to add to the site map in app/config/sitemap.php file.
+
 ### Settings
 
 Change website title, and other options trough the settings panel. Settings are saved in database.
@@ -281,7 +292,6 @@ Commands are located in app/TypiCMS/Commands
 
 Feel free to fork and pull request!  
 TypiCMS follows [PSR-2](http://www.php-fig.org/psr/psr-2/) standard.  
-TypiCMS needs improvements, some features are not yet implemented.  
 
 Thanks to [elvendor](https://github.com/elvendor) and [jekjek](https://github.com/jekjek) for their contributions!
 
